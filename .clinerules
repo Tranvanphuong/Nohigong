@@ -1,0 +1,37 @@
+# Cline's Rules for Nohigong
+
+## Project Patterns
+- Sử dụng Zalo Mini App cho frontend để tối ưu trải nghiệm người dùng
+- MongoDB làm database chính cho tính linh hoạt
+- Zalo OAuth cho authentication để đơn giản hóa đăng nhập
+- Redux Toolkit cho state management
+- React Query cho data fetching
+
+## Code Conventions
+- Sử dụng TypeScript cho type safety
+- Tuân thủ ESLint và Prettier
+- Component-based architecture
+- Functional components với hooks
+- Clean code principles
+
+## Development Workflow
+- Feature branch workflow
+- Pull request reviews
+- Automated testing
+- Continuous integration
+- Regular documentation updates
+
+## Documentation Standards
+- Keep memory bank updated
+- Document all major decisions
+- Maintain clear API documentation
+- Update progress regularly
+- Track known issues
+
+## Best Practices
+- Mobile-first design
+- Performance optimization
+- Security first approach
+- Scalable architecture
+- Regular code reviews
+- Zalo Mini App guidelines compliance 
