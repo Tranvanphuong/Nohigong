@@ -5,9 +5,15 @@ import Category from "./category";
 import FlashSales from "./flash-sales";
 import HorizontalDivider from "@/components/horizontal-divider";
 import CategoryTabs from "@/components/category-tabs";
+import CustomApiExample from "@/components/CustomApiExample";
+import ProductGrid from "@/components/product-grid";
+import { useAtomValue } from "jotai";
+import { productsState } from "@/state";
+import { Suspense } from "react";
 
 const HomePage: React.FunctionComponent = () => {
   const navigate = useNavigate();
+
   return (
     <div className="min-h-full bg-section">
       <div className="bg-background pt-2">
@@ -15,11 +21,19 @@ const HomePage: React.FunctionComponent = () => {
         <Banners />
       </div>
       <div className="bg-background space-y-2 mt-2">
-        <CategoryTabs />
-        <Category />
+        {/* <CategoryTabs /> */}
+        <Suspense fallback={<div>Loading products...</div>}>
+          <ProductGrid
+            products={useAtomValue(productsState)}
+            className="pt-4 pb-[13px]"
+          />
+        </Suspense>
       </div>
       <HorizontalDivider />
-      <FlashSales />
+
+      <div className="mt-4">
+        <CustomApiExample />
+      </div>
     </div>
   );
 };

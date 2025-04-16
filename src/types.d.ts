@@ -1,13 +1,18 @@
 export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  category: Category;
-  details?: Detail[];
-  sizes?: Size[];
-  colors?: Color[];
+  sku_code: string;
+  brand_name: string;
+  inventory_item_name: string;
+  unit_price: number;
+  unit_name: string;
+  inventory_item_type: number;
+  inactive: boolean;
+  inventory_item_category_name: string | null;
+  vendor_name_list: string[] | null;
+  minimum_instock: number;
+  inventory_item_id: string;
+  length: number;
+  width: number;
+  height: number;
 }
 
 export interface Category {

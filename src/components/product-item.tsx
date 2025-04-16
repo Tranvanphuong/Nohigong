@@ -1,4 +1,4 @@
-import { Product } from "types";
+import { Product } from "../types";
 import { formatPrice } from "@/utils/format";
 import TransitionLink from "./transition-link";
 import { useState } from "react";
@@ -18,33 +18,35 @@ export default function ProductItem(props: ProductItemProps) {
   return (
     <TransitionLink
       className="flex flex-col cursor-pointer group"
-      to={`/product/${props.product.id}`}
+      to={`/product/${props.product.inventory_item_id}`}
       replace={props.replace}
       onClick={() => setSelected(true)}
     >
       {({ isTransitioning }) => (
         <>
           <img
-            src={props.product.image}
+            src={props.product.sku_code}
             className="w-full aspect-square object-cover rounded-t-lg"
             style={{
               viewTransitionName:
                 isTransitioning && selected // only animate the "clicked" product item in related products list
-                  ? `product-image-${props.product.id}`
+                  ? `product-image-${props.product.inventory_item_id}`
                   : undefined,
             }}
-            alt={props.product.name}
+            alt={props.product.inventory_item_name}
           />
           <div className="py-2">
-            <div className="text-3xs text-subtitle truncate">
+            {/* <div className="text-3xs text-subtitle truncate">
               {props.product.category.name}
+            </div> */}
+            <div className="text-xs h-9 line-clamp-2">
+              {props.product.inventory_item_name}
             </div>
-            <div className="text-xs h-9 line-clamp-2">{props.product.name}</div>
             <div className="mt-0.5 text-sm font-medium">
-              {formatPrice(props.product.price)}
+              {formatPrice(props.product.unit_price)}
             </div>
             <div className="text-3xs text-subtitle line-through">
-              {formatPrice(props.product.price)}
+              {formatPrice(props.product.unit_price)}
             </div>
           </div>
         </>
