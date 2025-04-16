@@ -1,4 +1,4 @@
-import { View, Text } from '@zmp-ui/core';
+import React from 'react';
 
 interface MemberProfileProps {
   name: string;
@@ -6,25 +6,25 @@ interface MemberProfileProps {
   address: string;
 }
 
-const MemberProfile: React.FC<MemberProfileProps> = ({ name, phone, address }) => {
+function MemberProfile({ name, phone, address }: MemberProfileProps) {
   return (
-    <View className="p-4">
-      <View className="mb-4">
-        <Text className="text-gray-500 text-sm">Tên</Text>
-        <Text className="text-lg font-medium">{name}</Text>
-      </View>
+    <div className="p-4">
+      <div className="mb-4">
+        <span className="text-gray-500 text-sm">Tên</span>
+        <div className="text-lg font-medium">{name}</div>
+      </div>
       
-      <View className="mb-4">
-        <Text className="text-gray-500 text-sm">Số điện thoại</Text>
-        <Text className="text-lg font-medium">{phone}</Text>
-      </View>
+      <div className="mb-4">
+        <span className="text-gray-500 text-sm">Số điện thoại</span>
+        <div className="text-lg font-medium">{phone}</div>
+      </div>
       
-      <View className="mb-4">
-        <Text className="text-gray-500 text-sm">Địa chỉ</Text>
-        <Text className="text-lg font-medium">{address}</Text>
-      </View>
-    </View>
+      <div className="mb-4">
+        <span className="text-gray-500 text-sm">Địa chỉ</span>
+        <div className="text-lg font-medium">{address}</div>
+      </div>
+    </div>
   );
-};
+}
 
 export default MemberProfile; 
