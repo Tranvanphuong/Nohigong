@@ -5,9 +5,11 @@ import {
   VoucherIcon,
 } from "@/components/vectors";
 import { useToBeImplemented } from "@/hooks";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileActions() {
   const toBeImplemented = useToBeImplemented();
+  const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-lg p-4 grid grid-cols-4 gap-4 border-[0.5px] border-black/15">
@@ -15,7 +17,7 @@ export default function ProfileActions() {
         {
           label: "Thông tin tài khoản",
           icon: ProfileIcon,
-          onClick: toBeImplemented,
+          onClick: () => navigate("/profile/account-info"),
         },
         {
           label: "Đổi voucher",
