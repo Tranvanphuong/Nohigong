@@ -1,11 +1,7 @@
 import Button from "@/components/button";
 import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtomValue } from "jotai";
-import {
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { productState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
@@ -21,14 +17,17 @@ import SharePhoneModal from "@/components/SharePhoneModal";
 export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = useAtomValue(productState(Number(id)))!;
+  if (!id) {
+    throw new Error("Product ID is required");
+  }
+  const product = useAtomValue(productState(id))!;
   const [selectedColor, setSelectedColor] = useState<Color>();
   const [selectedSize, setSelectedSize] = useState<Size>();
   const [showSharePhoneModal, setShowSharePhoneModal] = useState(false);
 
   useEffect(() => {
-    setSelectedColor(product.colors?.[0]);
-    setSelectedSize(product.sizes?.[0]);
+    // setSelectedColor(product.colors?.[0]);
+    // setSelectedSize(product.siz?.[0]);
   }, [id]);
 
   const { addToCart, setOptions } = useAddToCart(product);
@@ -44,27 +43,31 @@ export default function ProductDetailPage() {
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
         <img
-          src={product.image}
+          src={product.inventory_item_name}
           className="w-full aspect-square object-cover"
-          alt={product.name}
+          alt={product.inventory_item_name}
         />
         <div className="p-4 space-y-4">
           <div className="space-y-1">
-            <div className="text-3xs text-subtitle">{product.category.name}</div>
-            <div className="text-lg font-medium">{product.name}</div>
+            <div className="text-3xs text-subtitle">
+              {product.category.name}
+            </div>
+            <div className="text-lg font-medium">
+              {product.inventory_item_name}
+            </div>
             <div className="flex items-center space-x-2">
               <div className="text-sm font-medium text-primary">
-                {formatPrice(product.price)}
+                {formatPrice(product.unit_price)}
               </div>
-              {product.originalPrice && (
+              {product.unit_price && (
                 <div className="line-through text-subtitle text-3xs">
-                  {formatPrice(product.originalPrice)}
+                  {formatPrice(product.unit_price)}
                 </div>
               )}
             </div>
           </div>
           <div className="space-y-2">
-            {product.colors && (
+            {/* {product.colors && (
               <VariantPicker
                 title="Màu sắc"
                 variants={product.colors}
@@ -76,7 +79,7 @@ export default function ProductDetailPage() {
                       selected ? "bg-primary text-white" : ""
                     )}
                   >
-                    <div className="truncate">{variant?.name || ''}</div>
+                    <div className="truncate">{variant?.name || ""}</div>
                   </div>
                 )}
               />
@@ -93,24 +96,24 @@ export default function ProductDetailPage() {
                       selected ? "bg-primary text-white" : ""
                     )}
                   >
-                    <div className="truncate">{variant || ''}</div>
+                    <div className="truncate">{variant || ""}</div>
                   </div>
                 )}
               />
-            )}
+            )} */}
           </div>
-          {product.details && (
+          {/* {product.details && (
             <>
               <div className="bg-section h-2 w-full"></div>
               <Collapse items={product.details} />
             </>
-          )}
+          )} */}
           <div className="bg-section h-2 w-full"></div>
           <div className="font-medium py-2 px-4">
             <div className="pt-2 pb-2.5">Sản phẩm khác</div>
             <HorizontalDivider />
           </div>
-          <RelatedProducts currentProductId={product.id} />
+          <RelatedProducts currentProductId={product.inventory_item_id} />
         </div>
 
         <HorizontalDivider />
@@ -138,7 +141,7 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      <SharePhoneModal 
+      <SharePhoneModal
         isOpen={showSharePhoneModal}
         onClose={() => setShowSharePhoneModal(false)}
       />
