@@ -13,6 +13,7 @@ export interface Product {
   length: number;
   width: number;
   height: number;
+  file_name: string;
 }
 
 export interface Category {

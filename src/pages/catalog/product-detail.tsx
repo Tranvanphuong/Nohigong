@@ -1,8 +1,8 @@
 import Button from "@/components/button";
 import HorizontalDivider from "@/components/horizontal-divider";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { productState } from "@/state";
+import { productDetailState, productState, selectedProductIdState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
@@ -11,24 +11,36 @@ import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
-import { Color, Size } from "@/types";
+import { Color, Size, Product } from "@/types";
 import SharePhoneModal from "@/components/SharePhoneModal";
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+  
   const navigate = useNavigate();
   if (!id) {
     throw new Error("Product ID is required");
   }
-  const product = useAtomValue(productState(id))!;
+
+  const [, setSelectedProductId] = useAtom(selectedProductIdState);
+  useEffect(() => {
+    setSelectedProductId(id);
+  }, [id]);
+
+  const getImageUrl = (fileName: string | null) => {
+    if (!fileName) return "";
+    return `https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${fileName}`;
+  };
+
+  const product = useAtomValue(productDetailState) as Product | null;
+  
+  if (!product) {
+    return <div>Loading...</div>;
+  }
+
   const [selectedColor, setSelectedColor] = useState<Color>();
   const [selectedSize, setSelectedSize] = useState<Size>();
   const [showSharePhoneModal, setShowSharePhoneModal] = useState(false);
-
-  useEffect(() => {
-    // setSelectedColor(product.colors?.[0]);
-    // setSelectedSize(product.siz?.[0]);
-  }, [id]);
 
   const { addToCart, setOptions } = useAddToCart(product);
 
@@ -43,14 +55,14 @@ export default function ProductDetailPage() {
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
         <img
-          src={product.inventory_item_name}
+          src={getImageUrl(product.file_name || "")}
           className="w-full aspect-square object-cover"
           alt={product.inventory_item_name}
         />
         <div className="p-4 space-y-4">
           <div className="space-y-1">
             <div className="text-3xs text-subtitle">
-              {product.category.name}
+              {product.inventory_item_category_name}
             </div>
             <div className="text-lg font-medium">
               {product.inventory_item_name}
