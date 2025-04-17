@@ -71,11 +71,11 @@ export default function ProductDetailPage() {
               <div className="text-sm font-medium text-primary">
                 {formatPrice(product.unit_price)}
               </div>
-              {product.unit_price && (
+              {/* {product.unit_price && (
                 <div className="line-through text-subtitle text-3xs">
                   {formatPrice(product.unit_price)}
                 </div>
-              )}
+              )} */}
             </div>
           </div>
           <div className="space-y-2">
@@ -120,12 +120,12 @@ export default function ProductDetailPage() {
               <Collapse items={product.details} />
             </>
           )} */}
-          <div className="bg-section h-2 w-full"></div>
+          {/* <div className="bg-section h-2 w-full"></div>
           <div className="font-medium py-2 px-4">
             <div className="pt-2 pb-2.5">Sản phẩm khác</div>
             <HorizontalDivider />
-          </div>
-          <RelatedProducts currentProductId={product.inventory_item_id} />
+          </div> */}
+          {/* <RelatedProducts currentProductId={product.inventory_item_id} /> */}
         </div>
 
         <HorizontalDivider />
@@ -134,7 +134,6 @@ export default function ProductDetailPage() {
             large
             onClick={() => {
               addToCart(1);
-              setShowSharePhoneModal(true);
               toast.success("Đã thêm vào giỏ hàng");
             }}
           >
