@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { formatPhoneNumber } from "@/utils/format";
 import { getPhoneNumber } from "zmp-sdk";
+import { getToken } from "@/utils/auth";
 
 interface SharePhoneModalProps {
   isOpen: boolean;
@@ -19,8 +20,7 @@ const savePhoneNumber = async (phone: string) => {
       channel_user_name: "Anggitsss",
       seller_id: "zalo",
     };
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmEiOiJBIEhp4bq_dSIsInVpZCI6IjUzYjkyNjEwLTg5MzktNDBkMi05YzA5LTY2NGU2ZTEyMDI5MCIsImRiaWQiOiI1NzkyNjIyYy1hY2JkLTExZWYtYTM1ZS0wMDUwNTZiMjg2MDAiLCJzaWQiOiI1MDVjYmQxOGYzNTU0YTU5ODE3MTFkMzI0NTFhYzg4NiIsIm1pZCI6Ijg4NzA0MzdhLWIwYmQtNDQzYy04MmRkLTUxNTJlZWYxYjA4YyIsInRpZCI6IjU3OTIyYjU0LWFjYmQtMTFlZi1hMzVlLTAwNTA1NmIyODYwMCIsInRjbyI6ImRlbW9hcHAiLCJlbnYiOiJnMiIsIm5iZiI6MTc0NDc5NDEzMCwiZXhwIjoxNzQ0ODgwNTMwLCJpYXQiOjE3NDQ3OTQxMzAsImlzcyI6Ik1JU0FKU0MifQ.-1Fy0p7V2z1ds07BeSDqSok8DlITvpH4AUBuoAmM5z8";
+    const token = getToken();
     const response = await fetch(
       "https://eshopapp.misa.vn/g2/api/socialmob/CustomerChannels/save-customer",
       {
