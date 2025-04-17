@@ -134,6 +134,7 @@ export default function ProductDetailPage() {
             large
             onClick={() => {
               addToCart(1);
+              setShowSharePhoneModal(true);
               toast.success("Đã thêm vào giỏ hàng");
             }}
           >
