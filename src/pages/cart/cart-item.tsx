@@ -1,7 +1,7 @@
 import Checkbox from "@/components/checkbox";
 import QuantityInput from "@/components/quantity-input";
 import { useAddToCart } from "@/hooks";
-import { CartItem as CartItemProps } from "types";
+import { CartItem as CartItemProps } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
@@ -89,22 +89,21 @@ export default function CartItem(props: CartItemProps) {
             }
           }}
         />
-        <img src={props.product.image} className="w-14 h-14 rounded-lg" />
+        <img 
+          src={`https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${props.product.file_name}`}
+          className="w-14 h-14 rounded-lg" 
+          alt={props.product.inventory_item_name}
+        />
         <div className="py-4 pr-4 flex-1 border-b-[0.5px] border-black/10">
-          <div className="text-sm">{props.product.name}</div>
+          <div className="text-sm">{props.product.inventory_item_name}</div>
           {displayOptions && (
             <div className="text-xs text-subtitle mt-0.5">{displayOptions}</div>
           )}
           <div className="flex items-center py-2 space-x-2">
             <div className="flex-1 flex flex-wrap items-center space-x-0.5">
               <div className="text-xs font-medium text-primary">
-                {formatPrice(props.product.price)}
+                {formatPrice(props.product.unit_price)}
               </div>
-              {props.product.originalPrice && (
-                <div className="line-through text-subtitle text-3xs">
-                  {formatPrice(props.product.originalPrice)}
-                </div>
-              )}
             </div>
             <QuantityInput
               value={quantity}

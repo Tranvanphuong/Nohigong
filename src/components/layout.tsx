@@ -19,7 +19,7 @@ export default function Layout() {
       <Toaster
         containerClassName="toast-container"
         containerStyle={{
-          top: "calc(50% - 24px)",
+          top: "16px",
         }}
       />
       <ScrollRestoration />

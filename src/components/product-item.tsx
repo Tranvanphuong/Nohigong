@@ -59,9 +59,9 @@ export default function ProductItem(props: ProductItemProps) {
         <div className="mt-0.5 text-sm font-medium">
           {formatPrice(props.product.unit_price)}
         </div>
-        <div className="text-3xs text-subtitle line-through">
+        {/* <div className="text-3xs text-subtitle line-through">
           {formatPrice(props.product.unit_price)}
-        </div>
+        </div> */}
       </div>
     </div>
   );
