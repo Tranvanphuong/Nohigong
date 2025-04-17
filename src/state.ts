@@ -5,6 +5,7 @@ import {
   post,
   requestWithFallback,
   requestWithFallbackURL,
+  getProductDetail
 } from "@/utils/request";
 import { getUserInfo } from "zmp-sdk";
 
@@ -58,62 +59,28 @@ export const productsState1 = atom(async (get) => {
 
 export const productsState = atom(async (get) => {
   try {
-    const categories = await get(categoriesState);
+    const response = await post<{ Data: Product[] }>(
+      "dimob/InventoryItems/list",
+      {
+        skip: 0,
+        take: 50,
+        sort: '[{"property":"106","desc":false}]',
+        filter:
+          '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
+        emptyFilter: "",
+        columns: "106,32,105,107,18,108,10,161,742,109,113,111,127,128,153",
+        view: 1,
+      },
+      {
+        token:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmEiOiJWxINuIFBoxrDGoW5nIiwidWlkIjoiNDdmZjUxYWItNDdlYS00OTg5LWJlOWYtYzU4NjAxNjIzNDhjIiwiZGJpZCI6IjY3OGI0MThjLWU0NjEtMTFlZi05ZTU4LTAwNTA1NmIyNzVmYSIsInNpZCI6Ijc3MGZhZDA5Zjk0YzRlMDJiY2VkNTZlZTg3NTM2NmYyIiwibWlkIjoiOTQ3N2Y5NmQtNWVhMC00NWRkLTliZjQtY2IyODc0MDY4YjVhIiwidGlkIjoiNjc4YWNiMGEtZTQ2MS0xMWVmLTllNTgtMDA1MDU2YjI3NWZhIiwidGNvIjoicWNfc3RvcmU0IiwiZW52IjoiZzIiLCJuYmYiOjE3NDQ3OTIzMTUsImV4cCI6MTc0NDg3ODcxNSwiaWF0IjoxNzQ0NzkyMzE1LCJpc3MiOiJNSVNBSlNDIn0.1WnJ0XM_BvEuQRvCM3eDIrqw6nRZsdtiIBD4larIvH8",
+      }
+    );
 
-    // Hiển thị thông báo trong console cho việc debug
-    console.log("Đang thử lấy dữ liệu từ API...");
-
-    // Hãy thử gọi API
-    try {
-      const products = await post<(Product & { categoryId: number })[]>(
-        "dimob/InventoryItems/list",
-        {
-          skip: 0,
-          take: 50,
-          sort: '[{"property":"106","desc":false}]',
-          filter:
-            '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
-          emptyFilter: "",
-          columns: "106,32,105,107,18,108,10,161,742,109,113,111,127,128",
-          view: 1,
-        },
-        {
-          token:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmEiOiJORCBIaeG6v3UiLCJ1aWQiOiJjZWU4OWIxYS0zM2Q1LTQ5N2ItODE4Zi1mOWUwYjhlNTZiMGIiLCJkYmlkIjoiNjg4MDdjNDAtN2NiYS0xMWVmLWJlMDktMDA1MDU2YjMzMmJjIiwic2lkIjoiNGE3ODVkNDY4MmZmNDI0OWEwOTE5Y2ZiYTBjNDExNjciLCJtaWQiOiI4ODcwNDM3YS1iMGJkLTQ0M2MtODJkZC01MTUyZWVmMWIwOGMiLCJ0aWQiOiJmYWNkOTNiNS03Y2IzLTExZWYtYmUwOS0wMDUwNTZiMzMyYmMiLCJ0Y28iOiJkZXZfbnRhbiIsImVudiI6ImcyIiwibmJmIjoxNzQ0NzcyMTMyLCJleHAiOjE3NDQ4NTg1MzIsImlhdCI6MTc0NDc3MjEzMiwiaXNzIjoiTUlTQUpTQyJ9.XKTkgrMACWQc9FK53xTrLJ_9NYpqm6GjjWwj1_vFPrI",
-        }
-      );
-
-      console.log("Kết quả API:", products); // Kiểm tra dữ liệu
-      let result = products.map((product) => ({
-        ...product,
-      }));
-      console.log("result" + result);
-      return result;
-    } catch (apiError) {
-      console.error("Lỗi khi gọi API:", apiError);
-      throw apiError; // Ném lỗi để xử lý ở catch bên ngoài
-    }
+    return response.Data;
   } catch (error) {
-    console.warn("Chuyển sang sử dụng dữ liệu dự phòng vì lỗi:", error);
-
-    // Lấy dữ liệu từ productsState1 làm dự phòng
-    try {
-      console.log("Đang lấy dữ liệu từ mock data...");
-      const products = await requestWithFallback<
-        (Product & { categoryId: number })[]
-      >("products", []);
-      const categories = await get(categoriesState);
-
-      return products.map((product) => ({
-        ...product,
-        category: categories.find(
-          (category) => category.id === product.categoryId
-        )!,
-      }));
-    } catch (fallbackError) {
-      console.error("Không thể lấy dữ liệu dự phòng:", fallbackError);
-      return []; // Trả về mảng rỗng nếu cả hai phương pháp đều thất bại
-    }
+    console.error("Error fetching products:", error);
+    return [];
   }
 });
 
@@ -183,4 +150,26 @@ export const searchResultState = atom(async (get) => {
   return products.filter((product) =>
     product.inventory_item_name.toLowerCase().includes(keyword.toLowerCase())
   );
+});
+
+export const selectedProductIdState = atom<string | null>(null);
+
+export const productDetailState = atom<Promise<Product | null>>(async (get) => {
+  const productId = get(selectedProductIdState);
+  console.log("productDetailState - productId:", productId);
+  
+  if (!productId) {
+    console.log("productDetailState - no productId, returning null");
+    return null;
+  }
+
+  try {
+    console.log("productDetailState - calling getProductDetail");
+    const response = await getProductDetail(productId);
+    console.log("productDetailState - response:", response);
+    return response as Product;
+  } catch (error) {
+    console.error("productDetailState - error:", error);
+    return null;
+  }
 });
