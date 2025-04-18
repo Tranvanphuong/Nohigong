@@ -1,8 +1,8 @@
-import Button from "@/components/button";
-import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtom, useAtomValue } from "jotai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getAccessToken, getPhoneNumber, getUserInfo } from "zmp-sdk/apis";
+import Button from "@/components/button";
+import HorizontalDivider from "@/components/horizontal-divider";
 import {
   productDetailState,
   productState,
@@ -121,11 +121,14 @@ export default function ProductDetailPage() {
               console.log("data", data);
               let { token } = data;
               console.log("Phone token:", token);
+              if (!token) {
+                throw new Error("Phone token is required");
+              }
               var userPhones = await getUserNumber({
                 access_token: accessToken,
                 code: token,
               });
-              await savePhoneNumber(userPhones?.data?.number, "Khách hàng");
+              await savePhoneNumber(userPhones?.data?.number, "Khách hàng"); 
               resolve(null);
             } catch (error) {
               reject(error);
@@ -136,9 +139,10 @@ export default function ProductDetailPage() {
       });
 
       toast.success("Đã thêm vào giỏ hàng");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error in handleAddToCart:", error);
-      toast.error("Có lỗi xảy ra: " + error.message);
+      const errorMessage = error instanceof Error ? error.message : "Đã xảy ra lỗi";
+      toast.error("Có lỗi xảy ra: " + errorMessage);
     }
   };
 

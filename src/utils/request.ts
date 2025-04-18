@@ -3,6 +3,7 @@ import { getToken } from "./auth";
 
 const API_URL = getConfig((config) => config.template.apiUrl);
 
+// @ts-ignore
 const mockUrls = import.meta.glob<{ default: string }>("../mock/*.json", {
   query: "url",
   eager: true,
@@ -155,7 +156,7 @@ export const getProductDetail = async (id: string) => {
   }
 };
 
-export const getUserNumber = async ({ access_token, code }) => {
+export const getUserNumber = async ({ access_token, code }: { access_token: string; code: string }) => {
   const secret_key = "USgLueM6o1xn8VioWvIR";
   try {
     const response = await fetch(`https://graph.zalo.me/v2.0/me/info`, {
