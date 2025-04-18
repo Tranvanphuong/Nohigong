@@ -1,6 +1,7 @@
 import { atom } from "jotai";
 import { atomFamily, unwrap, atomWithDefault } from "jotai/utils";
 import { Cart, Category, Color, Product } from "@/types";
+import { GetUserInfoReturns } from "@/types/user";
 import {
   post,
   requestWithFallback,
@@ -70,10 +71,6 @@ export const productsState = atom(async (get) => {
         emptyFilter: "",
         columns: "106,32,105,107,18,108,10,161,742,109,113,111,127,128,153",
         view: 1,
-      },
-      {
-        token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmEiOiJWxINuIFBoxrDGoW5nIiwidWlkIjoiNDdmZjUxYWItNDdlYS00OTg5LWJlOWYtYzU4NjAxNjIzNDhjIiwiZGJpZCI6IjY3OGI0MThjLWU0NjEtMTFlZi05ZTU4LTAwNTA1NmIyNzVmYSIsInNpZCI6Ijc3MGZhZDA5Zjk0YzRlMDJiY2VkNTZlZTg3NTM2NmYyIiwibWlkIjoiOTQ3N2Y5NmQtNWVhMC00NWRkLTliZjQtY2IyODc0MDY4YjVhIiwidGlkIjoiNjc4YWNiMGEtZTQ2MS0xMWVmLTllNTgtMDA1MDU2YjI3NWZhIiwidGNvIjoicWNfc3RvcmU0IiwiZW52IjoiZzIiLCJuYmYiOjE3NDQ3OTIzMTUsImV4cCI6MTc0NDg3ODcxNSwiaWF0IjoxNzQ0NzkyMzE1LCJpc3MiOiJNSVNBSlNDIn0.1WnJ0XM_BvEuQRvCM3eDIrqw6nRZsdtiIBD4larIvH8",
       }
     );
 

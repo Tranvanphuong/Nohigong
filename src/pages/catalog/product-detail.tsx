@@ -18,45 +18,10 @@ import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
 import { Color, Size, Product } from "@/types";
 import SharePhoneModal from "@/components/SharePhoneModal";
-import { getToken } from "@/utils/auth";
-import { getUserNumber } from "@/utils/request";
+import { services } from "@/services/services";
 
 export default function ProductDetailPage() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const savePhoneNumber = async (phone: string, userName: string) => {
-    console.log("savePhoneNumber", phone);
-    try {
-      let savePhoneBody = {
-        customer_name: userName,
-        phone_number: phone,
-        address: "hà nội",
-        channel_id: 10,
-        channel_user_id: "nggiitss",
-        channel_user_name: "Anggitsss",
-        seller_id: "zalo",
-      };
-      const token = getToken();
-      const response = await fetch(
-        "https://eshopapp.misa.vn/g2/api/socialmob/CustomerChannels/save-customer",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(savePhoneBody),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Không thể lưu số điện thoại");
-      }
-
-      console.log("Đã lưu số điện thoại thành công");
-    } catch (error) {
-      console.error("Lỗi khi lưu số điện thoại:", error);
-    }
-  };
   const { id } = useParams();
 
   const navigate = useNavigate();
@@ -70,8 +35,7 @@ export default function ProductDetailPage() {
   }, [id]);
 
   const getImageUrl = (fileName: string | null) => {
-    if (!fileName) return "";
-    return `https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${fileName}`;
+    return services.product.getImageUrl(fileName);
   };
 
   const product = useAtomValue(productDetailState) as Product | null;
@@ -97,48 +61,14 @@ export default function ProductDetailPage() {
     console.log("1. Bắt đầu xử lý click button");
     addToCart(1);
     try {
-      console.log("2. Bắt đầu lấy access token");
-      const accessToken = await getAccessToken({});
-      console.log("3. Access token:", accessToken);
-
-      // Lấy thông tin người dùng - sửa lại cách xử lý promise
-      console.log("4. Bắt đầu lấy user info");
-      const userInfoResult = await new Promise((resolve, reject) => {
-        getUserInfo({
-          success: resolve,
-          fail: reject,
-          autoRequestPermission: true,
-          avatarType: "large",
-        });
-      });
-      console.log("5. User info success:", userInfoResult);
-
-      console.log("6. Bắt đầu gọi getPhoneNumber");
-      await new Promise((resolve, reject) => {
-        getPhoneNumber({
-          success: async (data) => {
-            try {
-              console.log("data", data);
-              let { token } = data;
-              console.log("Phone token:", token);
-              var userPhones = await getUserNumber({
-                access_token: accessToken,
-                code: token,
-              });
-              await savePhoneNumber(userPhones?.data?.number, "Khách hàng");
-              resolve(null);
-            } catch (error) {
-              reject(error);
-            }
-          },
-          fail: reject,
-        });
-      });
-
+      const phoneNumber = await services.customer.getAndSavePhoneNumber();
+      if (phoneNumber) {
+        setPhoneNumber(phoneNumber);
+      }
       toast.success("Đã thêm vào giỏ hàng");
     } catch (error) {
       console.error("Error in handleAddToCart:", error);
-      toast.error("Có lỗi xảy ra: " + error.message);
+      toast.error("Có lỗi xảy ra: " + (error as Error).message);
     }
   };
 

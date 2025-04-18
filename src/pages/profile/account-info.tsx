@@ -1,19 +1,52 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/button";
 import { BackIcon } from "../../components/vectors";
+import { useAtomValue } from "jotai";
+import { userState } from "@/state";
+import { getUserInfo, getPhoneNumber } from "zmp-sdk";
+import { useEffect, useState } from "react";
+import { getAccessToken } from "zmp-sdk/apis";
+import { getUserNumber } from "@/utils/request";
 
 export default function AccountInfoPage() {
   const navigate = useNavigate();
-  
-  // Mock data - sẽ được thay thế bằng dữ liệu thực từ state management
-  const userData = {
-    name: "Nguyễn Văn A",
-    phone: "0123456789",
-    address: "123 Đường ABC, Quận XYZ, TP.HCM",
-    email: "nguyenvana@example.com",
-    memberSince: "01/01/2023",
-    points: 1000
-  };
+  const userInfo = useAtomValue(userState);
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+
+  useEffect(() => {
+    const fetchPhoneNumber = async () => {
+      try {
+        console.log("2. Bắt đầu lấy access token");
+        const accessToken = await getAccessToken({});
+        console.log("3. Access token:", accessToken);
+        await new Promise((resolve, reject) => {
+          getPhoneNumber({
+            success: async (data) => {
+              try {
+                console.log("data", data);
+                let { token } = data;
+                console.log("Phone token:", token);
+                var userPhones = await getUserNumber({
+                  access_token: accessToken,
+                  code: token,
+                });
+                console.log("userPhones", userPhones);
+                setPhoneNumber(userPhones?.data?.number);
+
+                resolve(null);
+              } catch (error) {
+                reject(error);
+              }
+            },
+            fail: reject,
+          });
+        });
+      } catch (error) {
+        console.error("Error getting phone number:", error);
+      }
+    };
+    fetchPhoneNumber();
+  }, []);
 
   return (
     <div className="min-h-full bg-section p-4">
@@ -33,37 +66,29 @@ export default function AccountInfoPage() {
           <div className="space-y-2">
             <div>
               <p className="text-sm text-gray-500">Họ và tên</p>
-              <p className="font-medium">{userData.name}</p>
+              <p className="font-medium">
+                {userInfo?.userInfo?.name || "Chưa cập nhật"}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Số điện thoại</p>
-              <p className="font-medium">{userData.phone}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium">{userData.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Địa chỉ</p>
-              <p className="font-medium">{userData.address}</p>
+              <p className="font-medium">{phoneNumber || "Chưa cập nhật"}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow-sm">
+        <div className="bg-white rounded-lg p-4 shadow-sm mt-4">
           <h2 className="text-lg font-medium mb-3">Thông tin thành viên</h2>
           <div className="space-y-2">
             <div>
-              <p className="text-sm text-gray-500">Ngày tham gia</p>
-              <p className="font-medium">{userData.memberSince}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Điểm tích lũy</p>
-              <p className="font-medium">{userData.points} điểm</p>
+              <p className="text-sm text-gray-500">ID người dùng</p>
+              <p className="font-medium">
+                {userInfo?.userInfo?.id || "Chưa cập nhật"}
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}
