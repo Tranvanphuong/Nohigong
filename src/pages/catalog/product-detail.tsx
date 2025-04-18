@@ -2,7 +2,12 @@ import Button from "@/components/button";
 import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtom, useAtomValue } from "jotai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { productDetailState, productState, selectedProductIdState } from "@/state";
+import { getAccessToken, getPhoneNumber, getUserInfo } from "zmp-sdk/apis";
+import {
+  productDetailState,
+  productState,
+  selectedProductIdState,
+} from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
@@ -13,10 +18,47 @@ import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
 import { Color, Size, Product } from "@/types";
 import SharePhoneModal from "@/components/SharePhoneModal";
+import { getToken } from "@/utils/auth";
+import { getUserNumber } from "@/utils/request";
 
 export default function ProductDetailPage() {
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const savePhoneNumber = async (phone: string, userName: string) => {
+    console.log("savePhoneNumber", phone);
+    try {
+      let savePhoneBody = {
+        customer_name: userName,
+        phone_number: phone,
+        address: "hà nội",
+        channel_id: 10,
+        channel_user_id: "nggiitss",
+        channel_user_name: "Anggitsss",
+        seller_id: "zalo",
+      };
+      const token = getToken();
+      const response = await fetch(
+        "https://eshopapp.misa.vn/g2/api/socialmob/CustomerChannels/save-customer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(savePhoneBody),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Không thể lưu số điện thoại");
+      }
+
+      console.log("Đã lưu số điện thoại thành công");
+    } catch (error) {
+      console.error("Lỗi khi lưu số điện thoại:", error);
+    }
+  };
   const { id } = useParams();
-  
+
   const navigate = useNavigate();
   if (!id) {
     throw new Error("Product ID is required");
@@ -33,7 +75,7 @@ export default function ProductDetailPage() {
   };
 
   const product = useAtomValue(productDetailState) as Product | null;
-  
+
   if (!product) {
     return <div>Loading...</div>;
   }
@@ -50,6 +92,55 @@ export default function ProductDetailPage() {
       color: selectedColor?.name,
     });
   }, [selectedSize, selectedColor]);
+
+  const handleAddToCart = async () => {
+    console.log("1. Bắt đầu xử lý click button");
+    addToCart(1);
+    try {
+      console.log("2. Bắt đầu lấy access token");
+      const accessToken = await getAccessToken({});
+      console.log("3. Access token:", accessToken);
+
+      // Lấy thông tin người dùng - sửa lại cách xử lý promise
+      console.log("4. Bắt đầu lấy user info");
+      const userInfoResult = await new Promise((resolve, reject) => {
+        getUserInfo({
+          success: resolve,
+          fail: reject,
+          autoRequestPermission: true,
+          avatarType: "large",
+        });
+      });
+      console.log("5. User info success:", userInfoResult);
+
+      console.log("6. Bắt đầu gọi getPhoneNumber");
+      await new Promise((resolve, reject) => {
+        getPhoneNumber({
+          success: async (data) => {
+            try {
+              console.log("data", data);
+              let { token } = data;
+              console.log("Phone token:", token);
+              var userPhones = await getUserNumber({
+                access_token: accessToken,
+                code: token,
+              });
+              await savePhoneNumber(userPhones?.data?.number, "Khách hàng");
+              resolve(null);
+            } catch (error) {
+              reject(error);
+            }
+          },
+          fail: reject,
+        });
+      });
+
+      toast.success("Đã thêm vào giỏ hàng");
+    } catch (error) {
+      console.error("Error in handleAddToCart:", error);
+      toast.error("Có lỗi xảy ra: " + error.message);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -130,14 +221,7 @@ export default function ProductDetailPage() {
 
         <HorizontalDivider />
         <div className="flex-none grid grid-cols-2 gap-2 py-3 px-4">
-          <Button
-            large
-            onClick={() => {
-              addToCart(1);
-              setShowSharePhoneModal(true);
-              toast.success("Đã thêm vào giỏ hàng");
-            }}
-          >
+          <Button large onClick={handleAddToCart}>
             Thêm vào giỏ
           </Button>
           <Button
@@ -153,10 +237,10 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      <SharePhoneModal
+      {/* <SharePhoneModal
         isOpen={showSharePhoneModal}
         onClose={() => setShowSharePhoneModal(false)}
-      />
+      /> */}
     </div>
   );
 }

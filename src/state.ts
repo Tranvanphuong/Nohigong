@@ -5,7 +5,7 @@ import {
   post,
   requestWithFallback,
   requestWithFallbackURL,
-  getProductDetail
+  getProductDetail,
 } from "@/utils/request";
 import { getUserInfo } from "zmp-sdk";
 
@@ -157,7 +157,7 @@ export const selectedProductIdState = atom<string | null>(null);
 export const productDetailState = atom<Promise<Product | null>>(async (get) => {
   const productId = get(selectedProductIdState);
   console.log("productDetailState - productId:", productId);
-  
+
   if (!productId) {
     console.log("productDetailState - no productId, returning null");
     return null;

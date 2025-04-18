@@ -154,3 +154,23 @@ export const getProductDetail = async (id: string) => {
     throw error;
   }
 };
+
+export const getUserNumber = async ({ access_token, code }) => {
+  const secret_key = "USgLueM6o1xn8VioWvIR";
+  try {
+    const response = await fetch(`https://graph.zalo.me/v2.0/me/info`, {
+      headers: {
+        access_token: access_token,
+        code: code,
+        secret_key: secret_key,
+      },
+    });
+    console.log(response);
+    const data = await response.json();
+    console.log("API response data:", data);
+    return data;
+  } catch (error) {
+    console.error("Error in getProductDetail:", error);
+    throw error;
+  }
+};
