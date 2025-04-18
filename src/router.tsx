@@ -7,6 +7,8 @@ import HomePage from "@/pages/home";
 import ProfilePage from "@/pages/profile";
 import AccountInfoPage from "@/pages/profile/account-info";
 import SearchPage from "@/pages/search";
+import CheckoutPage from "@/pages/checkout";
+import AddressPage from "@/pages/address";
 import { createBrowserRouter } from "react-router-dom";
 import { getBasePath } from "@/utils/zma";
 
@@ -36,6 +38,22 @@ const router = createBrowserRouter(
           element: <CartPage />,
           handle: {
             title: "Giỏ hàng",
+          },
+        },
+        {
+          path: "/checkout",
+          element: <CheckoutPage />,
+          handle: {
+            title: "Thanh toán",
+            back: true,
+          },
+        },
+        {
+          path: "/address",
+          element: <AddressPage />,
+          handle: {
+            title: "Địa chỉ nhận hàng",
+            back: true,
           },
         },
         {

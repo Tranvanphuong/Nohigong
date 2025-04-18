@@ -2,8 +2,8 @@ import {
   OrderHistoryIcon,
   PackageIcon,
   ProfileIcon,
-  VoucherIcon,
 } from "@/components/vectors";
+
 import { useToBeImplemented } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 
@@ -20,9 +20,9 @@ export default function ProfileActions() {
           onClick: () => navigate("/profile/account-info"),
         },
         {
-          label: "Đổi voucher",
-          icon: VoucherIcon,
-          onClick: toBeImplemented,
+          label: "Địa chỉ nhận hàng",
+          icon: "",
+          onClick: () => navigate("/address"),
         },
         {
           label: "Theo dõi đơn hàng",

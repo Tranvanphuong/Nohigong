@@ -1,5 +1,10 @@
 import { atom } from "jotai";
-import { atomFamily, unwrap, atomWithDefault } from "jotai/utils";
+import {
+  atomFamily,
+  unwrap,
+  atomWithDefault,
+  atomWithStorage,
+} from "jotai/utils";
 import { Cart, Category, Color, Product } from "@/types";
 import { GetUserInfoReturns } from "@/types/user";
 import {
@@ -9,6 +14,7 @@ import {
   getProductDetail,
 } from "@/utils/request";
 import { getUserInfo } from "zmp-sdk";
+import { ShippingAddress } from "./types";
 
 export const userState = atomWithDefault(async () => {
   const user = await getUserInfo({
@@ -170,3 +176,9 @@ export const productDetailState = atom<Promise<Product | null>>(async (get) => {
     return null;
   }
 });
+
+export const shippingAddressesState = atomWithStorage<ShippingAddress[]>(
+  "shipping-addresses",
+  []
+);
+export const selectedAddressState = atom<ShippingAddress | null>(null);
