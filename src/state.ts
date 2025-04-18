@@ -57,6 +57,8 @@ export const productsState1 = atom(async (get) => {
   }));
 });
 
+export const productFilterState = atom<string>("");
+
 export const productsState = atom(async (get) => {
   try {
     const response = await post<{ Data: Product[] }>(
@@ -65,8 +67,7 @@ export const productsState = atom(async (get) => {
         skip: 0,
         take: 50,
         sort: '[{"property":"106","desc":false}]',
-        filter:
-          '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
+        filter: '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
         emptyFilter: "",
         columns: "106,32,105,107,18,108,10,161,742,109,113,111,127,128,153",
         view: 1,
@@ -78,6 +79,28 @@ export const productsState = atom(async (get) => {
     console.error("Error fetching products:", error);
     return [];
   }
+});
+
+export const filteredProductsState = atom(async (get) => {
+  const products = await get(productsState);
+  const filter = get(productFilterState);
+  
+  if (!filter) return products;
+  
+  return products.filter(product => {
+    if (!product.inventory_item_category_name) return false;
+    
+    switch(filter) {
+      case 'dry':
+        return product.inventory_item_category_name.includes('Đồ ăn khô');
+      case 'clothes':
+        return product.inventory_item_category_name.includes('Quần áo');
+      case 'shoes':
+        return product.inventory_item_category_name.includes('Giày dép');
+      default:
+        return true;
+    }
+  });
 });
 
 export const flashSaleProductsState = atom((get) => get(productsState));
@@ -195,5 +218,3 @@ export const paymentMethodsState = atom([
   { id: "transfer", name: "Chuyển khoản", icon: "💳" },
   { id: "cash", name: "Tiền mặt", icon: "💵" },
 ]);
-
-export const productFilterState = atom<string>("");

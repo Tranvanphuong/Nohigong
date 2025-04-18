@@ -5,7 +5,6 @@ import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
 import { categoriesState } from "@/state";
 import ProductGrid from "@/components/product-grid";
-import { productsState } from "@/state";
 import ProductFilter from "@/components/product-filter";
 
 export default function CategoryListPage() {
@@ -17,12 +16,10 @@ export default function CategoryListPage() {
       <div className="py-2">
         <SearchBar onClick={() => navigate("/search")} />
       </div>
+      {/* <CategoryTabs /> */}
       <ProductFilter />
       <div className="bg-background space-y-2 mt-2">
-        <ProductGrid
-          products={useAtomValue(productsState)}
-          className="pt-4 pb-[13px]"
-        />
+        <ProductGrid className="pt-4 pb-[13px]" />
       </div>
     </>
   );

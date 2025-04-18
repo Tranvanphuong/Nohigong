@@ -2,10 +2,10 @@ import { useAtomValue } from "jotai";
 import { Product } from "../types";
 import ProductItem from "./product-item";
 import { HTMLAttributes, Suspense } from "react";
-import { productsState } from "@/state";
+import { filteredProductsState } from "@/state";
 
 export interface ProductGridProps extends HTMLAttributes<HTMLDivElement> {
-  products: Product[];
+  products?: Product[];
   replace?: boolean;
 }
 
@@ -14,7 +14,7 @@ function ProductGridContent({
   replace,
   ...props
 }: ProductGridProps) {
-  const products = useAtomValue(productsState);
+  const products = useAtomValue(filteredProductsState);
   console.log("products", products);
   return (
     <div
