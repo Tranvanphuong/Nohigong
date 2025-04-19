@@ -1,5 +1,10 @@
 import { externalApi } from "@/api/externalApi";
-import { getAccessToken, getPhoneNumber, getUserInfo } from "zmp-sdk/apis";
+import {
+  getAccessToken,
+  getPhoneNumber,
+  getUserInfo,
+  showToast,
+} from "zmp-sdk/apis";
 import { getUserNumber } from "@/utils/request";
 
 export const services = {
@@ -47,6 +52,7 @@ export const services = {
             avatarType: "large",
           });
         });
+        console.log("userInfoResult", userInfoResult);
 
         const phoneData = await new Promise((resolve, reject) => {
           getPhoneNumber({
@@ -94,6 +100,43 @@ export const services = {
   file: {
     download: (fileResourceId: string) => {
       return externalApi.downloadFile(fileResourceId);
+    },
+  },
+
+  // Dịch vụ quản lý đơn hàng
+  order: {
+    create: async (orderData: {
+      address: any;
+      items: any[];
+      notes: {
+        seller: string;
+        shipping: string;
+      };
+      voucher?: string;
+      totalAmount: number;
+    }) => {
+      try {
+        // Gọi API tạo đơn hàng
+        const response = await externalApi.createOrder(orderData);
+
+        // Hiển thị thông báo thành công
+        await showToast({
+          message: "Đặt hàng thành công!",
+          type: "success",
+        });
+
+        return response;
+      } catch (error) {
+        console.error("Error creating order:", error);
+
+        // Hiển thị thông báo lỗi
+        await showToast({
+          message: "Đặt hàng thất bại, vui lòng thử lại!",
+          type: "error",
+        });
+
+        throw error;
+      }
     },
   },
 };

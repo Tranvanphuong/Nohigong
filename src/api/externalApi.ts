@@ -5,7 +5,7 @@ const BASE_URL = "https://eshopapp.misa.vn/g2/api";
 export const externalApi = {
   // API cho quản lý sản phẩm
   getProductImage: (fileName: string) => {
-    return `${BASE_URL}/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${fileName}`;
+    return `${BASE_URL}/file/files?type=3&dbId=68807c40-7cba-11ef-be09-005056b332bc&file=${fileName}`;
   },
 
   // API cho quản lý khách hàng

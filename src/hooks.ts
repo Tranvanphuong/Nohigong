@@ -105,6 +105,10 @@ export function useAddToCart(product: Product, editingCartItemId?: number) {
 }
 
 export function useCustomerSupport() {
+  console.log("useCustomerSupport", {
+    type: "oa",
+    id: getConfig((config) => config.template.oaIDtoOpenChat),
+  });
   return () =>
     openChat({
       type: "oa",
