@@ -2,7 +2,11 @@ import { Product } from "../types";
 import { formatPrice } from "@/utils/format";
 import { useNavigate } from "react-router-dom";
 import { useSetAtom } from "jotai";
-import { selectedProductIdState } from "@/state";
+import {
+  selectedProductIdState,
+  isQuickBuyModalOpenState,
+  quickBuyState,
+} from "@/state";
 import { services } from "@/services/services";
 
 export interface ProductItemProps {
@@ -17,6 +21,8 @@ export interface ProductItemProps {
 export default function ProductItem(props: ProductItemProps) {
   const navigate = useNavigate();
   const setSelectedProductId = useSetAtom(selectedProductIdState);
+  const setIsQuickBuyModalOpen = useSetAtom(isQuickBuyModalOpenState);
+  const setQuickBuy = useSetAtom(quickBuyState);
 
   console.log(setSelectedProductId);
   const getImageUrl = (fileName: string | null) => {
@@ -31,6 +37,20 @@ export default function ProductItem(props: ProductItemProps) {
     setSelectedProductId(props.product.inventory_item_id);
     console.log("ProductItem - handleClick - navigating to product page");
     navigate(`/product/${props.product.inventory_item_id}`);
+  };
+
+  const handleQuickBuy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedProductId(props.product.inventory_item_id);
+    setQuickBuy({
+      productId: props.product.inventory_item_id,
+      quantity: 1,
+      address: "",
+      note: "",
+      paymentMethod: "transfer",
+      totalAmount: props.product.unit_price,
+    });
+    setIsQuickBuyModalOpen(true);
   };
 
   return (
@@ -62,6 +82,12 @@ export default function ProductItem(props: ProductItemProps) {
         {/* <div className="text-3xs text-subtitle line-through">
           {formatPrice(props.product.unit_price)}
         </div> */}
+        <button
+          onClick={handleQuickBuy}
+          className="mt-2 w-full bg-red-500 text-white py-1 rounded hover:bg-red-600"
+        >
+          Mua ngay
+        </button>
       </div>
     </div>
   );

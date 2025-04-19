@@ -1,8 +1,8 @@
-import Button from "@/components/button";
-import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtom, useAtomValue } from "jotai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getAccessToken, getPhoneNumber, getUserInfo } from "zmp-sdk/apis";
+import Button from "@/components/button";
+import HorizontalDivider from "@/components/horizontal-divider";
 import {
   productDetailState,
   productState,
@@ -66,7 +66,7 @@ export default function ProductDetailPage() {
         setPhoneNumber(phoneNumber);
       }
       toast.success("Đã thêm vào giỏ hàng");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error in handleAddToCart:", error);
       toast.error("Có lỗi xảy ra: " + (error as Error).message);
     }

@@ -1,5 +1,13 @@
 import React from "react";
-import { Route } from "react-router-dom";
-import ProductDetail from "./pages/product-detail";
+import { RouterProvider } from "react-router-dom";
+import router from "./router";
+import QuickBuyModal from "./components/quick-buy-modal";
 
-<Route path="/product/:id" element={<ProductDetail />} /> 
+export default function App() {
+  return (
+    <>
+      <RouterProvider router={router} />
+      <QuickBuyModal />
+    </>
+  );
+} 

@@ -5,7 +5,7 @@ import {
   atomWithDefault,
   atomWithStorage,
 } from "jotai/utils";
-import { Cart, Category, Color, Product } from "@/types";
+import type { Cart, Category, Color, Product } from "@/types";
 import { GetUserInfoReturns } from "@/types/user";
 import {
   post,
@@ -58,11 +58,13 @@ export const productsState1 = atom(async (get) => {
   >("products", []);
   return products.map((product) => ({
     ...product,
-    category: categories.find(
-      (category) => category.id === product.categoryId
-    )!,
+    category:
+      categories?.find((category) => category.id === product.categoryId) ||
+      null,
   }));
 });
+
+export const productFilterState = atom<string>("");
 
 export const productsState = atom(async (get) => {
   try {
@@ -85,6 +87,28 @@ export const productsState = atom(async (get) => {
     console.error("Error fetching products:", error);
     return [];
   }
+});
+
+export const filteredProductsState = atom(async (get) => {
+  const products = await get(productsState);
+  const filter = get(productFilterState);
+
+  if (!filter) return products;
+
+  return products.filter((product) => {
+    if (!product.inventory_item_category_name) return false;
+
+    switch (filter) {
+      case "dry":
+        return product.inventory_item_category_name.includes("Đồ ăn khô");
+      case "clothes":
+        return product.inventory_item_category_name.includes("Quần áo");
+      case "shoes":
+        return product.inventory_item_category_name.includes("Giày dép");
+      default:
+        return true;
+    }
+  });
 });
 
 export const flashSaleProductsState = atom((get) => get(productsState));
@@ -176,6 +200,32 @@ export const productDetailState = atom<Promise<Product | null>>(async (get) => {
     return null;
   }
 });
+
+// Quick Buy States
+export interface QuickBuyState {
+  productId: string | null;
+  quantity: number;
+  address: string;
+  note: string;
+  paymentMethod: string;
+  totalAmount: number;
+}
+
+export const quickBuyState = atom<QuickBuyState>({
+  productId: null,
+  quantity: 1,
+  address: "",
+  note: "",
+  paymentMethod: "transfer", // transfer: chuyển khoản, cash: tiền mặt
+  totalAmount: 0,
+});
+
+export const isQuickBuyModalOpenState = atom(false);
+
+export const paymentMethodsState = atom([
+  { id: "transfer", name: "Chuyển khoản", icon: "💳" },
+  { id: "cash", name: "Tiền mặt", icon: "💵" },
+]);
 
 export const shippingAddressesState = atomWithStorage<ShippingAddress[]>(
   "shipping-addresses",
