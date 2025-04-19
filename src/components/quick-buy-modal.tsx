@@ -1,5 +1,10 @@
 import { useAtom, useAtomValue } from "jotai";
-import { quickBuyState, isQuickBuyModalOpenState, paymentMethodsState, productDetailState } from "@/state";
+import {
+  quickBuyState,
+  isQuickBuyModalOpenState,
+  paymentMethodsState,
+  productDetailState,
+} from "@/state";
 import { formatPrice } from "@/utils/format";
 import { useCallback } from "react";
 
@@ -34,13 +39,19 @@ export default function QuickBuyModal() {
         {/* Thông tin sản phẩm */}
         <div className="flex gap-4 mb-4">
           <img
-            src={product.file_name ? `https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${product.file_name}` : ""}
+            src={
+              product.file_name
+                ? `https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${product.file_name}`
+                : ""
+            }
             alt={product.inventory_item_name}
             className="w-20 h-20 object-cover rounded"
           />
           <div>
             <h3 className="font-medium">{product.inventory_item_name}</h3>
-            <p className="text-red-500 font-semibold">{formatPrice(product.unit_price)}</p>
+            <p className="text-red-500 font-semibold">
+              {formatPrice(product.unit_price)}
+            </p>
           </div>
         </div>
 
@@ -53,7 +64,9 @@ export default function QuickBuyModal() {
             <input
               type="text"
               value={quickBuy.address}
-              onChange={(e) => setQuickBuy({ ...quickBuy, address: e.target.value })}
+              onChange={(e) =>
+                setQuickBuy({ ...quickBuy, address: e.target.value })
+              }
               className="w-full p-2 border rounded"
               placeholder="Nhập địa chỉ giao hàng"
             />
@@ -65,7 +78,9 @@ export default function QuickBuyModal() {
             </label>
             <textarea
               value={quickBuy.note}
-              onChange={(e) => setQuickBuy({ ...quickBuy, note: e.target.value })}
+              onChange={(e) =>
+                setQuickBuy({ ...quickBuy, note: e.target.value })
+              }
               className="w-full p-2 border rounded"
               placeholder="Nhập ghi chú (không bắt buộc)"
               rows={2}
@@ -82,9 +97,13 @@ export default function QuickBuyModal() {
                   <input
                     type="radio"
                     checked={quickBuy.paymentMethod === method.id}
-                    onChange={() => setQuickBuy({ ...quickBuy, paymentMethod: method.id })}
+                    onChange={() =>
+                      setQuickBuy({ ...quickBuy, paymentMethod: method.id })
+                    }
                   />
-                  <span>{method.icon} {method.name}</span>
+                  <span>
+                    {method.icon} {method.name}
+                  </span>
                 </label>
               ))}
             </div>
@@ -108,4 +127,4 @@ export default function QuickBuyModal() {
       </div>
     </div>
   );
-} 
+}
