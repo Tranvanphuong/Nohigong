@@ -52,7 +52,7 @@ export default function CheckoutPage() {
       const orderData = {
         address: selectedAddress,
         items: cartItems.map((item) => ({
-          productId: item.product.id,
+          productId: item.product.inventory_item_name,
           quantity: item.quantity,
           options: item.options,
         })),
@@ -64,8 +64,8 @@ export default function CheckoutPage() {
       // Gọi API đặt hàng
       await services.order.create(orderData);
 
-      // Chuyển đến trang thành công
-      navigate("/payment-success");
+      // Chuyển đến trang thành công với dữ liệu đơn hàng
+      navigate("/payment-success", { state: { orderData } });
     } catch (error) {
       console.error("Error placing order:", error);
     } finally {
