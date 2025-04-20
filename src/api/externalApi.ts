@@ -24,6 +24,10 @@ export const externalApi = {
     });
   },
 
+  createOrder: (data: any) => {
+    return post(`${BASE_URL}/socialmob/Orders/create`, data);
+  },
+
   // API cho tải file
   downloadFile: (fileResourceId: string) => {
     return `${BASE_URL}/di/FileResources/download/${fileResourceId}`;
