@@ -4,4 +4,8 @@ export interface ShippingAddress {
   phone: string;
   address: string;
   isDefault?: boolean;
+  province?: any;
+  district?: any;
+  ward?: any;
+  hamlet?: any;
 }
