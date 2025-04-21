@@ -58,10 +58,10 @@ export default function CheckoutPage() {
         title: "Ghi chú cho người bán",
         placeholder: "Nhập ghi chú cho người bán...",
       },
-      shipping: {
-        title: "Ghi chú cho đơn vị vận chuyển",
-        placeholder: "Nhập ghi chú cho đơn vị vận chuyển...",
-      },
+      // shipping: {
+      //   title: "Ghi chú cho đơn vị vận chuyển",
+      //   placeholder: "Nhập ghi chú cho đơn vị vận chuyển...",
+      // },
     };
 
     setNoteModal({
@@ -315,7 +315,7 @@ export default function CheckoutPage() {
                 </svg>
               </div>
             </div>
-
+{/* 
             <div
               className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
               onClick={() => openNoteModal("shipping")}
@@ -340,7 +340,7 @@ export default function CheckoutPage() {
                   />
                 </svg>
               </div>
-            </div>
+            </div> */}
           </div>
         </Box>
 
