@@ -1,4 +1,4 @@
-import { Page, Box, Input, Button } from "zmp-ui";
+import { Page, Box, Input, Button, Radio } from "zmp-ui";
 import { useAtom, useAtomValue } from "jotai";
 import {
   cartTotalState,
@@ -13,6 +13,7 @@ import CusButton from "@/components/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AddAddressModal from "./add-address-modal";
+import NoteModal from "./note-modal";
 import { ShippingAddress } from "@/types";
 import { services } from "@/services/services";
 
@@ -29,6 +30,13 @@ export default function CheckoutPage() {
   });
   const [voucher, setVoucher] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("cod"); // cod hoặc bank_transfer
+  const [noteModal, setNoteModal] = useState({
+    visible: false,
+    type: "", // seller hoặc shipping
+    title: "",
+    placeholder: "",
+  });
   const navigate = useNavigate();
 
   // Tự động chọn địa chỉ mặc định khi vào trang
@@ -42,6 +50,34 @@ export default function CheckoutPage() {
 
   const handleSelectAddress = (address: ShippingAddress) => {
     setSelectedAddress(address);
+  };
+
+  const openNoteModal = (type: "seller" | "shipping") => {
+    const config = {
+      seller: {
+        title: "Ghi chú cho người bán",
+        placeholder: "Nhập ghi chú cho người bán...",
+      },
+      shipping: {
+        title: "Ghi chú cho đơn vị vận chuyển",
+        placeholder: "Nhập ghi chú cho đơn vị vận chuyển...",
+      },
+    };
+
+    setNoteModal({
+      visible: true,
+      type,
+      title: config[type].title,
+      placeholder: config[type].placeholder,
+    });
+  };
+
+  const handleCloseNoteModal = () => {
+    setNoteModal((prev) => ({ ...prev, visible: false }));
+  };
+
+  const handleChangeNote = (value: string) => {
+    setNotes((prev) => ({ ...prev, [noteModal.type]: value }));
   };
 
   const handlePlaceOrder = async () => {
@@ -82,7 +118,7 @@ export default function CheckoutPage() {
             total_item_quantity: totalItems,
             total_amount: totalAmount,
             remain_amount: totalAmount,
-            is_cod: false,
+            is_cod: paymentMethod === "cod", // Cập nhật giá trị is_cod dựa trên phương thức thanh toán
             to_province_or_city_id: selectedAddress.province?.name,
             to_district_id: selectedAddress.district?.name,
             to_ward_or_commune_id: selectedAddress.ward?.name,
@@ -253,31 +289,57 @@ export default function CheckoutPage() {
         <Box className="rounded-none bg-white mb-2">
           <div className="p-4 space-y-4">
             <div className="font-medium text-gray-800">Ghi chú</div>
-            <div>
-              <Input
-                label="Ghi chú cho người bán"
-                placeholder="Ví dụ: Màu sắc, kích thước cụ thể..."
-                clearable={true}
-                maxLength={1000}
-                value={notes.seller}
-                onChange={(e) =>
-                  setNotes((prev) => ({ ...prev, seller: e.target.value }))
-                }
-                className="w-full rounded-lg border-gray-200"
-              />
+
+            <div
+              className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
+              onClick={() => openNoteModal("seller")}
+            >
+              <div className="flex items-center text-gray-800">
+                <span className="min-w-[120px]">Người bán:</span>
+                <span className="text-gray-600 flex-1 truncate">
+                  {notes.seller ? notes.seller : "Thêm ghi chú"}
+                </span>
+              </div>
+              <div className="text-gray-400 flex-shrink-0 ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
             </div>
-            <div>
-              <Input
-                label="Ghi chú cho đơn vị vận chuyển"
-                placeholder="Ví dụ: Thời gian nhận hàng, địa điểm cụ thể..."
-                clearable={true}
-                maxLength={1000}
-                value={notes.shipping}
-                onChange={(e) =>
-                  setNotes((prev) => ({ ...prev, shipping: e.target.value }))
-                }
-                className="w-full rounded-lg border-gray-200"
-              />
+
+            <div
+              className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
+              onClick={() => openNoteModal("shipping")}
+            >
+              <div className="flex items-center text-gray-800">
+                <span className="min-w-[120px]">Vận chuyển:</span>
+                <span className="text-gray-600 flex-1 truncate">
+                  {notes.shipping ? notes.shipping : "Thêm ghi chú"}
+                </span>
+              </div>
+              <div className="text-gray-400 flex-shrink-0 ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </Box>
@@ -288,9 +350,44 @@ export default function CheckoutPage() {
             <div className="font-medium mb-3 text-gray-800">
               Phương thức thanh toán
             </div>
-            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-              <span className="text-gray-800">Thanh toán khi nhận hàng</span>
-              <span className="text-primary">Lựa chọn</span>
+            <div className="space-y-3">
+              <div
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  paymentMethod === "cod" ? "border-primary" : "border-gray-200"
+                }`}
+                onClick={() => setPaymentMethod("cod")}
+              >
+                <div className="flex items-center">
+                  <Radio
+                    name="payment"
+                    value="cod"
+                    checked={paymentMethod === "cod"}
+                    onChange={() => setPaymentMethod("cod")}
+                  />
+                  <span className="ml-2 text-gray-800">
+                    Thanh toán khi nhận hàng
+                  </span>
+                </div>
+              </div>
+
+              <div
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  paymentMethod === "bank_transfer"
+                    ? "border-primary"
+                    : "border-gray-200"
+                }`}
+                onClick={() => setPaymentMethod("bank_transfer")}
+              >
+                <div className="flex items-center">
+                  <Radio
+                    name="payment"
+                    value="bank_transfer"
+                    checked={paymentMethod === "bank_transfer"}
+                    onChange={() => setPaymentMethod("bank_transfer")}
+                  />
+                  <span className="ml-2 text-gray-800">Chuyển khoản</span>
+                </div>
+              </div>
             </div>
           </div>
         </Box>
@@ -338,6 +435,15 @@ export default function CheckoutPage() {
       <AddAddressModal
         visible={showAddAddress}
         onClose={() => setShowAddAddress(false)}
+      />
+
+      <NoteModal
+        visible={noteModal.visible}
+        onClose={handleCloseNoteModal}
+        title={noteModal.title}
+        placeholder={noteModal.placeholder}
+        value={notes[noteModal.type as "seller" | "shipping"]}
+        onChange={handleChangeNote}
       />
     </Page>
   );
