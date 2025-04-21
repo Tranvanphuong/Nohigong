@@ -191,8 +191,8 @@ const OrdersPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const result = await services.order.getOrderList(1, 20);
-        setOrders(result.orders);
+        const result = await services.order.getOrderWithDetail();
+        setOrders(result);
       } catch (err) {
         console.error("Lỗi khi tải danh sách đơn hàng:", err);
         setError("Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.");
