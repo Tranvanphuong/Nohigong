@@ -163,20 +163,11 @@ export const services = {
 
   // Dịch vụ quản lý đơn hàng
   order: {
-    create: async (orderData: {
-      address: any;
-      items: any[];
-      notes: {
-        seller: string;
-        shipping: string;
-      };
-      voucher?: string;
-      totalAmount: number;
-    }) => {
+    create: async (orderData: any) => {
       try {
         // Gọi API tạo đơn hàng
         const response = await externalApi.createOrder(orderData);
-
+        console.log(response);
         // Hiển thị thông báo thành công
         await showToast({
           message: "Đặt hàng thành công!",

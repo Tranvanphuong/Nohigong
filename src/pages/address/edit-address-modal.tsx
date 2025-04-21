@@ -114,6 +114,10 @@ export default function EditAddressModal({
             fullName: form.fullName,
             phone: form.phone,
             address: fullAddress,
+            province: selectedProvince || undefined,
+            district: selectedDistrict || undefined,
+            ward: selectedWard || undefined,
+            hamlet: selectedHamlet || undefined,
           };
         }
         return address;
@@ -127,6 +131,10 @@ export default function EditAddressModal({
         phone: form.phone,
         address: fullAddress,
         isDefault: addresses.length === 0, // Đặt làm địa chỉ mặc định nếu là địa chỉ đầu tiên
+        province: selectedProvince || undefined,
+        district: selectedDistrict || undefined,
+        ward: selectedWard || undefined,
+        hamlet: selectedHamlet || undefined,
       };
       setAddresses([...addresses, newAddress]);
     }

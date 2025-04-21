@@ -1,10 +1,11 @@
-import { Page, Box, Input, Button } from "zmp-ui";
+import { Page, Box, Input, Button, Radio } from "zmp-ui";
 import { useAtom, useAtomValue } from "jotai";
 import {
   cartTotalState,
   selectedAddressState,
   shippingAddressesState,
   cartState,
+  userState,
 } from "@/state";
 import { formatPrice } from "@/utils/format";
 import CusButton from "@/components/button";
@@ -12,6 +13,7 @@ import CusButton from "@/components/button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AddAddressModal from "./add-address-modal";
+import NoteModal from "./note-modal";
 import { ShippingAddress } from "@/types";
 import { services } from "@/services/services";
 
@@ -21,12 +23,20 @@ export default function CheckoutPage() {
   const [selectedAddress, setSelectedAddress] = useAtom(selectedAddressState);
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [cartItems] = useAtom(cartState);
+  const userInfo = useAtomValue(userState);
   const [notes, setNotes] = useState({
     seller: "",
     shipping: "",
   });
   const [voucher, setVoucher] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("cod"); // cod hoặc bank_transfer
+  const [noteModal, setNoteModal] = useState({
+    visible: false,
+    type: "", // seller hoặc shipping
+    title: "",
+    placeholder: "",
+  });
   const navigate = useNavigate();
 
   // Tự động chọn địa chỉ mặc định khi vào trang
@@ -40,6 +50,34 @@ export default function CheckoutPage() {
 
   const handleSelectAddress = (address: ShippingAddress) => {
     setSelectedAddress(address);
+  };
+
+  const openNoteModal = (type: "seller" | "shipping") => {
+    const config = {
+      seller: {
+        title: "Ghi chú cho người bán",
+        placeholder: "Nhập ghi chú cho người bán...",
+      },
+      shipping: {
+        title: "Ghi chú cho đơn vị vận chuyển",
+        placeholder: "Nhập ghi chú cho đơn vị vận chuyển...",
+      },
+    };
+
+    setNoteModal({
+      visible: true,
+      type,
+      title: config[type].title,
+      placeholder: config[type].placeholder,
+    });
+  };
+
+  const handleCloseNoteModal = () => {
+    setNoteModal((prev) => ({ ...prev, visible: false }));
+  };
+
+  const handleChangeNote = (value: string) => {
+    setNotes((prev) => ({ ...prev, [noteModal.type]: value }));
   };
 
   const handlePlaceOrder = async () => {
@@ -60,86 +98,85 @@ export default function CheckoutPage() {
         voucher: voucher || undefined,
         totalAmount,
         returnRecord: true,
+        commitOrder: {
+          model: {
+            is_master: false,
+            State: 1,
+            EditVersion: 0,
+            id: crypto.randomUUID(),
+            order_id: crypto.randomUUID(),
+            branch_id: "87e2d19c-89f7-11ef-88d3-005056b34af7",
+            ref_no: "#000000",
+            ref_type: 5491,
+            customer_name: selectedAddress.fullName,
+            order_status: 5,
+            recipient_name: selectedAddress.fullName,
+            recipient_tel: selectedAddress.phone,
+            page_id: userInfo?.userInfo?.id,
+            page_name: userInfo?.userInfo?.name,
+            total_item_amount: totalAmount,
+            total_item_quantity: totalItems,
+            total_amount: totalAmount,
+            remain_amount: totalAmount,
+            is_cod: paymentMethod === "cod", // Cập nhật giá trị is_cod dựa trên phương thức thanh toán
+            to_province_or_city_id: selectedAddress.province?.name,
+            to_district_id: selectedAddress.district?.name,
+            to_ward_or_commune_id: selectedAddress.ward?.name,
 
-        model: {
-          is_master: false,
-          State: 1,
-          EditVersion: 0,
-          id: "1f84c5be-adce-400c-b03e-ac77dc8104db",
-          order_id: "1f84c5be-adce-400c-b03e-ac77dc8104db",
-          branch_id: "87e2d19c-89f7-11ef-88d3-005056b34af7",
-          ref_no: "#001059",
-          ref_type: 5491,
-          customer_name: "Nguyễn Long Nhật",
-          order_status: 5,
-          recipient_name: "Nguyễn Long Nhật",
-          recipient_tel: "0922111146",
-          page_id: "757103802701361965",
-          page_name: "Nguyễn Diệu Linh",
-          total_item_amount: 45000,
-          total_item_quantity: 1,
-          total_amount: 60000,
-          remain_amount: 60000,
-          is_cod: false,
-          to_province_or_city_id: "Lào Cai",
-          to_district_id: "Huyện Si Ma Cai",
-          to_ward_or_commune_id: "Xã Thào Chư Phìn",
-          employee_note: "aaaaaaaaaaaaa",
-          shipping_note: "ffffffff",
-          type_viewable: 0,
-          order_date: "2025-04-20T11:17:39.000Z",
-          channel_id: 120,
-          is_save_customer: false,
-
-          pick_option: 1,
-          to_province_or_city_id_number: "269",
-          to_district_id_number: "2264",
-          to_ward_or_commune_id_number: "80213",
-          partner_user_id: "2485980537744713171",
-          reset_from_promotion: false,
-          is_apply_tax: true,
-          is_tax_reduction: true,
-          IsValidForAction: true,
-          publish_status: 0,
-          created_date: "2025-04-20T18:17:39",
-          modified_date: "2025-04-20T18:17:39",
-          Details: [
-            {
+            to_province_or_city_id_number: selectedAddress.province?.id,
+            to_district_id_number: selectedAddress.district?.id,
+            to_ward_or_commune_id_number: selectedAddress.ward?.id,
+            employee_note: notes.seller,
+            shipping_note: notes.shipping,
+            type_viewable: 0,
+            order_date: new Date().toISOString(),
+            channel_id: 120,
+            is_save_customer: false,
+            pick_option: 1,
+            partner_user_id: userInfo?.userInfo?.id,
+            reset_from_promotion: false,
+            is_apply_tax: true,
+            is_tax_reduction: true,
+            IsValidForAction: true,
+            publish_status: 0,
+            created_date: new Date().toISOString(),
+            modified_date: new Date().toISOString(),
+            Details: cartItems.map((item) => ({
               is_master: false,
               State: 1,
               EditVersion: 0,
-              id: "a2ae65fb-4896-48dd-9ee8-4575bd6c2cdf",
-              order_detail_id: "a2ae65fb-4896-48dd-9ee8-4575bd6c2cdf",
-              order_id: "1f84c5be-adce-400c-b03e-ac77dc8104db",
+              id: crypto.randomUUID(),
+              order_detail_id: crypto.randomUUID(),
+              order_id: crypto.randomUUID(),
               is_auto_generate: false,
-              inventory_item_id: "2e2c6a53-f92e-4d7b-b918-3573d1606537",
-              inventory_item_name:
-                " Bàn chải bảo vệ răng trẻ em và người lớn PIERROT JUNIOR 1",
+              inventory_item_id: item.product.inventory_item_id,
+              inventory_item_name: item.product.inventory_item_name,
               inventory_item_type: 1,
-              quantity: 1,
-              unit_price: 45000,
+              quantity: item.quantity,
+              unit_price: item.product.unit_price,
               sort_order: 0,
-              file_name: "60f98cd6-ded6-486a-b198-891851147a67.png",
-              amount: 45000,
-              origin_amount: 45000,
+              file_name: item.product.file_name,
+              amount: item.product.unit_price * item.quantity,
+              origin_amount: item.product.unit_price * item.quantity,
               tax_rate: 5,
               tax_rate_display: "5%",
-              barcode: "100010",
-              pre_unit_price_before_discount: 45000,
+              barcode: item.product.barcode,
+              pre_unit_price_before_discount: item.product.unit_price,
               is_e_invoice_component: false,
               is_return: false,
-              discounted_unit_price: 45000,
-              note: 'curl --location \'https://eshopapp.misa.vn.local/g1/api/ai/order/create\' \\\n--header \'x-ms-tk: 144f5e2cd8bd4090abbda2b848f9aff3\' \\\n--header \'Content-Type: application/json\' \\\n--data \'{\n    "branch_id": "a38f9189-ad87-11ef-a35e-005056b28600",\n    "is_create_order": false,\n    "eshop_info": {\n        "chatbot_id": "1a2b3c4d-1234-5678-9101-abcdefabcdef",\n        "chatbot_name": "Diệu Linh",\n        "partner_uid": "8788352037846024",\n        "seller_id": "378828585321124",\n        "conv_id": "t_1233811014414376",\n        "partner_name": "Vũ",\n        "channel_id": 5\n    },\n    "model": {\n        "customer_tel": "0778580934",\n        "customer_name": "",\n        "recipient_name": "Thủy",\n        "recipient_tel": "0778580934",\n        "recipient_address": "tòa N03T1, ngoại giao đoàn, xuân tảo, Btl, hà nội",\n        "recipient_address_detail": {\n            "street": "Tòa N03T1, Ngoại Giao Đoàn",\n            "ward": "Xuân Tảo",\n            "district": "Bắc Từ Liêm",\n            "province": "Hà Nội"\n        },\n        "employee_note": "",\n        "shipping_note": "",\n        "details": [\n            {\n                "inventory_item_id": "622fc9ea-4e6c-4091-a892-7cd281b80c0d",\n                "product_name": "Áo Thun Nữ Xoắn Eo Trơn (Đen/Freesize <64kg)",\n                "product_quantity": 2.0,\n                "unit_id": "097330eb-f92d-4b88-95a8-1a83fd3d8062",\n                "unit_name": "Chiếc"\n            }\n        ]\n    },\n    "db_id": "bbd0cdf2-0649-11f0-9afa-005056b275fa"\n}\'\n\na605fd88-f547-4d2c-9633-9e3d6bf65a21\nCÔNG TY TNHH JACOB\'S VÕ\n0902919676',
-              origin_unit_price: 45000,
-              amount_after_discount: 45000,
-            },
-          ],
+              discounted_unit_price: item.product.unit_price,
+              note: "",
+              origin_unit_price: item.product.unit_price,
+              amount_after_discount: item.product.unit_price * item.quantity,
+            })),
+          },
+          action: 99,
+          ReturnRecord: true,
         },
-        action: 99,
       };
-
+      console.log("Order Data:", JSON.stringify(orderData.commitOrder));
       // Gọi API đặt hàng
-      await services.order.create(orderData);
+      await services.order.create(orderData?.commitOrder);
 
       // Chuyển đến trang thành công với dữ liệu đơn hàng
       navigate("/payment-success", { state: { orderData } });
@@ -252,31 +289,57 @@ export default function CheckoutPage() {
         <Box className="rounded-none bg-white mb-2">
           <div className="p-4 space-y-4">
             <div className="font-medium text-gray-800">Ghi chú</div>
-            <div>
-              <Input
-                label="Ghi chú cho người bán"
-                placeholder="Ví dụ: Màu sắc, kích thước cụ thể..."
-                clearable={true}
-                maxLength={1000}
-                value={notes.seller}
-                onChange={(e) =>
-                  setNotes((prev) => ({ ...prev, seller: e.target.value }))
-                }
-                className="w-full rounded-lg border-gray-200"
-              />
+
+            <div
+              className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
+              onClick={() => openNoteModal("seller")}
+            >
+              <div className="flex items-center text-gray-800">
+                <span className="min-w-[120px]">Người bán:</span>
+                <span className="text-gray-600 flex-1 truncate">
+                  {notes.seller ? notes.seller : "Thêm ghi chú"}
+                </span>
+              </div>
+              <div className="text-gray-400 flex-shrink-0 ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
             </div>
-            <div>
-              <Input
-                label="Ghi chú cho đơn vị vận chuyển"
-                placeholder="Ví dụ: Thời gian nhận hàng, địa điểm cụ thể..."
-                clearable={true}
-                maxLength={1000}
-                value={notes.shipping}
-                onChange={(e) =>
-                  setNotes((prev) => ({ ...prev, shipping: e.target.value }))
-                }
-                className="w-full rounded-lg border-gray-200"
-              />
+
+            <div
+              className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
+              onClick={() => openNoteModal("shipping")}
+            >
+              <div className="flex items-center text-gray-800">
+                <span className="min-w-[120px]">Vận chuyển:</span>
+                <span className="text-gray-600 flex-1 truncate">
+                  {notes.shipping ? notes.shipping : "Thêm ghi chú"}
+                </span>
+              </div>
+              <div className="text-gray-400 flex-shrink-0 ml-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </Box>
@@ -287,9 +350,44 @@ export default function CheckoutPage() {
             <div className="font-medium mb-3 text-gray-800">
               Phương thức thanh toán
             </div>
-            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-              <span className="text-gray-800">Thanh toán khi nhận hàng</span>
-              <span className="text-primary">Lựa chọn</span>
+            <div className="space-y-3">
+              <div
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  paymentMethod === "cod" ? "border-primary" : "border-gray-200"
+                }`}
+                onClick={() => setPaymentMethod("cod")}
+              >
+                <div className="flex items-center">
+                  <Radio
+                    name="payment"
+                    value="cod"
+                    checked={paymentMethod === "cod"}
+                    onChange={() => setPaymentMethod("cod")}
+                  />
+                  <span className="ml-2 text-gray-800">
+                    Thanh toán khi nhận hàng
+                  </span>
+                </div>
+              </div>
+
+              <div
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  paymentMethod === "bank_transfer"
+                    ? "border-primary"
+                    : "border-gray-200"
+                }`}
+                onClick={() => setPaymentMethod("bank_transfer")}
+              >
+                <div className="flex items-center">
+                  <Radio
+                    name="payment"
+                    value="bank_transfer"
+                    checked={paymentMethod === "bank_transfer"}
+                    onChange={() => setPaymentMethod("bank_transfer")}
+                  />
+                  <span className="ml-2 text-gray-800">Chuyển khoản</span>
+                </div>
+              </div>
             </div>
           </div>
         </Box>
@@ -337,6 +435,15 @@ export default function CheckoutPage() {
       <AddAddressModal
         visible={showAddAddress}
         onClose={() => setShowAddAddress(false)}
+      />
+
+      <NoteModal
+        visible={noteModal.visible}
+        onClose={handleCloseNoteModal}
+        title={noteModal.title}
+        placeholder={noteModal.placeholder}
+        value={notes[noteModal.type as "seller" | "shipping"]}
+        onChange={handleChangeNote}
       />
     </Page>
   );

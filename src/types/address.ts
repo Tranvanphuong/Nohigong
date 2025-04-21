@@ -1,3 +1,5 @@
+import Address from "@/models/Address";
+
 export interface AddressData {
   key_id: string;
   id: string;
@@ -20,4 +22,8 @@ export interface ShippingAddress {
   phone: string;
   address: string;
   isDefault?: boolean;
+  province?: Address;
+  district?: Address;
+  ward?: Address;
+  hamlet?: Address;
 }

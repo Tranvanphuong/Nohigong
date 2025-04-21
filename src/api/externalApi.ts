@@ -25,7 +25,7 @@ export const externalApi = {
   },
 
   createOrder: (data: any) => {
-    return post(`${BASE_URL}/socialmob/Orders/create`, data);
+    return post(`bizmob/MessageOrderMobs/commit`, data);
   },
 
   // API cho tải file

@@ -79,6 +79,10 @@ export default function AddAddressModal({
       phone: form.phone,
       address: fullAddress,
       isDefault: addresses.length === 0, // Đặt làm địa chỉ mặc định nếu là địa chỉ đầu tiên
+      province: selectedProvince || undefined,
+      district: selectedDistrict || undefined,
+      ward: selectedWard || undefined,
+      hamlet: selectedHamlet || undefined,
     };
     setAddresses([...addresses, newAddress]);
     onClose();
