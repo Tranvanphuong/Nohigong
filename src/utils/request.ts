@@ -1,7 +1,9 @@
 import { getConfig } from "./template";
+import { getToken } from "./auth";
 
 const API_URL = getConfig((config) => config.template.apiUrl);
 
+// @ts-ignore
 const mockUrls = import.meta.glob<{ default: string }>("../mock/*.json", {
   query: "url",
   eager: true,
@@ -72,7 +74,6 @@ export async function post<T, D = any>(
   data: D,
   options?: {
     headers?: Record<string, string>;
-    token?: string;
   }
 ): Promise<T> {
   const url = API_URL
@@ -88,9 +89,7 @@ export async function post<T, D = any>(
     headers["Host"] = window.location.host;
   }
 
-  if (options?.token) {
-    headers["authorization"] = `Bearer ${options.token}`;
-  }
+  headers["authorization"] = `Bearer ${getToken()}`;
 
   let optionsFetch = {
     method: "POST",
@@ -137,14 +136,37 @@ function logCurlFromFetch(url: string, options: RequestInit = {}) {
 export const getProductDetail = async (id: string) => {
   console.log("getProductDetail called with id:", id);
   try {
-    const response = await fetch(`https://eshopapp.misa.vn/g2/api/di/InventoryItems/edit/${id}`, {
-      headers: {
-        'accept': 'application/json, text/plain, */*',
-        'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmEiOiJWxINuIFBoxrDGoW5nIiwidWlkIjoiNDdmZjUxYWItNDdlYS00OTg5LWJlOWYtYzU4NjAxNjIzNDhjIiwiZGJpZCI6IjY3OGI0MThjLWU0NjEtMTFlZi05ZTU4LTAwNTA1NmIyNzVmYSIsInNpZCI6Ijc3MGZhZDA5Zjk0YzRlMDJiY2VkNTZlZTg3NTM2NmYyIiwibWlkIjoiOTQ3N2Y5NmQtNWVhMC00NWRkLTliZjQtY2IyODc0MDY4YjVhIiwidGlkIjoiNjc4YWNiMGEtZTQ2MS0xMWVmLTllNTgtMDA1MDU2YjI3NWZhIiwidGNvIjoicWNfc3RvcmU0IiwiZW52IjoiZzIiLCJuYmYiOjE3NDQ3OTIzMTUsImV4cCI6MTc0NDg3ODcxNSwiaWF0IjoxNzQ0NzkyMzE1LCJpc3MiOiJNSVNBSlNDIn0.1WnJ0XM_BvEuQRvCM3eDIrqw6nRZsdtiIBD4larIvH8',
-        'x-ms-bid': 'a38f9189-ad87-11ef-a35e-005056b28600'
+    const response = await fetch(
+      `https://eshopapp.misa.vn/g2/api/dimob/InventoryItems/edit/${id}`,
+      {
+        headers: {
+          accept: "application/json, text/plain, */*",
+          authorization: `Bearer ${getToken()}`,
+          "x-ms-bid": "a38f9189-ad87-11ef-a35e-005056b28600",
+        },
       }
-    });
+    );
     console.log("API response status:", response.status);
+    const data = await response.json();
+    console.log("API response data:", data);
+    return data;
+  } catch (error) {
+    console.error("Error in getProductDetail:", error);
+    throw error;
+  }
+};
+
+export const getUserNumber = async ({ access_token, code }: { access_token: string; code: string }) => {
+  const secret_key = "USgLueM6o1xn8VioWvIR";
+  try {
+    const response = await fetch(`https://graph.zalo.me/v2.0/me/info`, {
+      headers: {
+        access_token: access_token,
+        code: code,
+        secret_key: secret_key,
+      },
+    });
+    console.log(response);
     const data = await response.json();
     console.log("API response data:", data);
     return data;

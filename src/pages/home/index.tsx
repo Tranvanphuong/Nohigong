@@ -8,11 +8,12 @@ import CategoryTabs from "@/components/category-tabs";
 import CustomApiExample from "@/components/CustomApiExample";
 import ProductGrid from "@/components/product-grid";
 import { useAtomValue } from "jotai";
-import { productsState } from "@/state";
+import { homeProductsState } from "@/state/home.state";
 import { Suspense } from "react";
 
 const HomePage: React.FunctionComponent = () => {
   const navigate = useNavigate();
+  const products = useAtomValue(homeProductsState);
 
   return (
     <div className="min-h-full bg-section">
@@ -24,7 +25,7 @@ const HomePage: React.FunctionComponent = () => {
         {/* <CategoryTabs /> */}
         <Suspense fallback={<div>Loading products...</div>}>
           <ProductGrid
-            products={useAtomValue(productsState)}
+            products={products}
             className="pt-4 pb-[13px]"
           />
         </Suspense>

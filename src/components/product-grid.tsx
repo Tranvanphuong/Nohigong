@@ -1,11 +1,10 @@
-import { useAtomValue } from "jotai";
+
 import { Product } from "../types";
 import ProductItem from "./product-item";
 import { HTMLAttributes, Suspense } from "react";
-import { productsState } from "@/state";
 
 export interface ProductGridProps extends HTMLAttributes<HTMLDivElement> {
-  products: Product[];
+  products?: Product[];
   replace?: boolean;
 }
 
@@ -14,8 +13,7 @@ function ProductGridContent({
   replace,
   ...props
 }: ProductGridProps) {
-  const products = useAtomValue(productsState);
-  console.log("products", products);
+  const products = props?.products ||[]; //useAtomValue(homeProductsState);
   return (
     <div
       className={"grid grid-cols-2 px-4 py-2 gap-4 ".concat(className ?? "")}

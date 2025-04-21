@@ -1,8 +1,13 @@
-import Button from "@/components/button";
-import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtom, useAtomValue } from "jotai";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { productDetailState, productState, selectedProductIdState } from "@/state";
+import { getAccessToken, getPhoneNumber, getUserInfo } from "zmp-sdk/apis";
+import Button from "@/components/button";
+import HorizontalDivider from "@/components/horizontal-divider";
+import {
+  productDetailState,
+  productState,
+  selectedProductIdState,
+} from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
@@ -11,12 +16,14 @@ import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
-import { Color, Size, Product } from "@/types";
+import { Color, Product } from "@/types";
 import SharePhoneModal from "@/components/SharePhoneModal";
+import { services } from "@/services/services";
 
 export default function ProductDetailPage() {
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
   const { id } = useParams();
-  
+
   const navigate = useNavigate();
   if (!id) {
     throw new Error("Product ID is required");
@@ -28,116 +35,112 @@ export default function ProductDetailPage() {
   }, [id]);
 
   const getImageUrl = (fileName: string | null) => {
-    if (!fileName) return "";
-    return `https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${fileName}`;
+    return services.product.getImageUrl(fileName);
   };
 
-  const product = useAtomValue(productDetailState) as Product | null;
-  
-  if (!product) {
+  const productDetail = useAtomValue(productDetailState) as Product | null;
+
+  if (!productDetail) {
     return <div>Loading...</div>;
   }
 
   const [selectedColor, setSelectedColor] = useState<Color>();
-  const [selectedSize, setSelectedSize] = useState<Size>();
+  // const [selectedSize, setSelectedSize] = useState<Size>();
   const [showSharePhoneModal, setShowSharePhoneModal] = useState(false);
 
-  const { addToCart, setOptions } = useAddToCart(product);
+  const { addToCart, setOptions } = useAddToCart(productDetail);
 
-  useEffect(() => {
-    setOptions({
-      size: selectedSize,
-      color: selectedColor?.name,
-    });
-  }, [selectedSize, selectedColor]);
+  // useEffect(() => {
+  //   setOptions({
+  //     size: selectedSize,
+  //     color: selectedColor?.name,
+  //   });
+  // }, [selectedSize, selectedColor]);
+
+  const handleAddToCart = async () => {
+    console.log("1. Bắt đầu xử lý click button");
+    addToCart(1);
+    try {
+      const phoneNumber = await services.customer.getAndSavePhoneNumber();
+      if (phoneNumber) {
+        setPhoneNumber(phoneNumber);
+      }
+      toast.success("Đã thêm vào giỏ hàng");
+    } catch (error: unknown) {
+      console.error("Error in handleAddToCart:", error);
+      toast.error("Có lỗi xảy ra: " + (error as Error).message);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto">
+     <div className="p-4">
         <img
-          src={getImageUrl(product.file_name || "")}
-          className="w-full aspect-square object-cover"
-          alt={product.inventory_item_name}
+          src={getImageUrl(productDetail.file_name)}
+          alt={productDetail.inventory_item_name}
+          className="w-full h-64 object-cover rounded-lg mb-4"
         />
-        <div className="p-4 space-y-4">
-          <div className="space-y-1">
-            <div className="text-3xs text-subtitle">
-              {product.inventory_item_category_name}
-            </div>
-            <div className="text-lg font-medium">
-              {product.inventory_item_name}
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="text-sm font-medium text-primary">
-                {formatPrice(product.unit_price)}
-              </div>
-              {/* {product.unit_price && (
-                <div className="line-through text-subtitle text-3xs">
-                  {formatPrice(product.unit_price)}
-                </div>
-              )} */}
-            </div>
-          </div>
-          <div className="space-y-2">
-            {/* {product.colors && (
-              <VariantPicker
-                title="Màu sắc"
-                variants={product.colors}
-                value={selectedColor}
-                onChange={(color) => setSelectedColor(color)}
-                renderVariant={(variant, selected) => (
-                  <div
-                    className={"w-full h-full flex justify-center items-center ".concat(
-                      selected ? "bg-primary text-white" : ""
-                    )}
-                  >
-                    <div className="truncate">{variant?.name || ""}</div>
-                  </div>
-                )}
-              />
-            )}
-            {product.sizes && (
-              <VariantPicker
-                title="Size"
-                variants={product.sizes}
-                value={selectedSize}
-                onChange={(size) => setSelectedSize(size)}
-                renderVariant={(variant, selected) => (
-                  <div
-                    className={"w-full h-full flex justify-center items-center ".concat(
-                      selected ? "bg-primary text-white" : ""
-                    )}
-                  >
-                    <div className="truncate">{variant || ""}</div>
-                  </div>
-                )}
-              />
-            )} */}
-          </div>
-          {/* {product.details && (
-            <>
-              <div className="bg-section h-2 w-full"></div>
-              <Collapse items={product.details} />
-            </>
-          )} */}
-          {/* <div className="bg-section h-2 w-full"></div>
-          <div className="font-medium py-2 px-4">
-            <div className="pt-2 pb-2.5">Sản phẩm khác</div>
-            <HorizontalDivider />
-          </div> */}
-          {/* <RelatedProducts currentProductId={product.inventory_item_id} /> */}
+        <h1 className="text-2xl font-bold mb-2">
+          {productDetail.inventory_item_name}
+        </h1>
+        <div className="text-xl font-semibold text-primary mb-4">
+          {productDetail.unit_price.toLocaleString("vi-VN")}đ
         </div>
 
+        {/* Mô tả sản phẩm */}
+        {productDetail.description && (
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold mb-2">Mô tả sản phẩm</h2>
+            <p className="text-gray-600 whitespace-pre-line">
+              {productDetail.description}
+            </p>
+          </div>
+        )}
+
+        {/* Thuộc tính sản phẩm */}
+        {productDetail.properties && productDetail.properties.length > 0 && (
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold mb-2">Thông số kỹ thuật</h2>
+            <div className="space-y-2">
+              {productDetail.properties.map((property) => (
+                <div key={property.inventory_item_property_id} className="flex justify-between">
+                  <span className="text-gray-600">{property.property_name}:</span>
+                  <span className="font-medium">{property.inventory_item_property_value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Thông tin sản phẩm */}
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-2">Thông tin sản phẩm</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-gray-600">Mã sản phẩm:</p>
+              <p className="font-medium">{productDetail.sku_code}</p>
+            </div>
+            <div>
+              <p className="text-gray-600">Danh mục:</p>
+              <p className="font-medium">
+                {productDetail.inventory_item_category_name}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-600">Thương hiệu:</p>
+              <p className="font-medium">{productDetail.brand_name}</p>
+            </div>
+            {/* <div>
+              <p className="text-gray-600">Tình trạng:</p>
+              <p className="font-medium">
+                {productDetail.instock > 0 ? "Còn hàng" : "Hết hàng"}
+              </p>
+            </div> */}
+          </div>
+        </div>
         <HorizontalDivider />
         <div className="flex-none grid grid-cols-2 gap-2 py-3 px-4">
-          <Button
-            large
-            onClick={() => {
-              addToCart(1);
-              setShowSharePhoneModal(true);
-              toast.success("Đã thêm vào giỏ hàng");
-            }}
-          >
+          <Button large onClick={handleAddToCart}>
             Thêm vào giỏ
           </Button>
           <Button
@@ -153,10 +156,6 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      <SharePhoneModal
-        isOpen={showSharePhoneModal}
-        onClose={() => setShowSharePhoneModal(false)}
-      />
     </div>
   );
 }

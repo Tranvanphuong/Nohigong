@@ -2,7 +2,8 @@ import { Product } from "../types";
 import { formatPrice } from "@/utils/format";
 import { useNavigate } from "react-router-dom";
 import { useSetAtom } from "jotai";
-import { selectedProductIdState } from "@/state";
+import { selectedProductIdState, isQuickBuyModalOpenState, quickBuyState } from "@/state";
+import { services } from "@/services/services";
 
 export interface ProductItemProps {
   product: Product;
@@ -16,25 +17,40 @@ export interface ProductItemProps {
 export default function ProductItem(props: ProductItemProps) {
   const navigate = useNavigate();
   const setSelectedProductId = useSetAtom(selectedProductIdState);
-  
-  console.log( setSelectedProductId);
+  const setIsQuickBuyModalOpen = useSetAtom(isQuickBuyModalOpenState);
+  const setQuickBuy = useSetAtom(quickBuyState);
+
+  console.log(setSelectedProductId);
   const getImageUrl = (fileName: string | null) => {
-    if (!fileName) return "";
-    return `https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${fileName}`;
+    return services.product.getImageUrl(fileName);
   };
 
   const handleClick = async () => {
-    console.log("ProductItem - handleClick - setting product ID:", props.product.inventory_item_id);
+    console.log(
+      "ProductItem - handleClick - setting product ID:",
+      props.product.inventory_item_id
+    );
     setSelectedProductId(props.product.inventory_item_id);
     console.log("ProductItem - handleClick - navigating to product page");
     navigate(`/product/${props.product.inventory_item_id}`);
   };
 
+  const handleQuickBuy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedProductId(props.product.inventory_item_id);
+    setQuickBuy({
+      productId: props.product.inventory_item_id,
+      quantity: 1,
+      address: "",
+      note: "",
+      paymentMethod: "transfer",
+      totalAmount: props.product.unit_price,
+    });
+    setIsQuickBuyModalOpen(true);
+  };
+
   return (
-    <div 
-      className="flex flex-col cursor-pointer group"
-      onClick={handleClick}
-    >
+    <div className="flex flex-col cursor-pointer group" onClick={handleClick}>
       <div className="w-full aspect-square rounded-t-lg overflow-hidden">
         {props.product.file_name ? (
           <img
@@ -62,6 +78,12 @@ export default function ProductItem(props: ProductItemProps) {
         {/* <div className="text-3xs text-subtitle line-through">
           {formatPrice(props.product.unit_price)}
         </div> */}
+        {/* <button
+          onClick={handleQuickBuy}
+          className="mt-2 w-full bg-red-500 text-white py-1 rounded hover:bg-red-600"
+        >
+          Mua ngay
+        </button> */}
       </div>
     </div>
   );
