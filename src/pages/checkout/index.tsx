@@ -268,7 +268,7 @@ export default function CheckoutPage() {
         <Box className="rounded-none bg-white mb-2">
           <div className="p-4">
             <div className="font-medium mb-3 text-gray-800">Mã giảm giá</div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 items-center">
               <Input
                 className="flex-1"
                 placeholder="Nhập mã ưu đãi"
@@ -315,7 +315,7 @@ export default function CheckoutPage() {
                 </svg>
               </div>
             </div>
-{/* 
+            {/* 
             <div
               className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
               onClick={() => openNoteModal("shipping")}

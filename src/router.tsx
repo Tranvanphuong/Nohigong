@@ -10,6 +10,8 @@ import SearchPage from "@/pages/search";
 import CheckoutPage from "@/pages/checkout";
 import AddressPage from "@/pages/address";
 import PaymentSuccessPage from "@/pages/payment-success";
+import OrdersPage from "@/pages/orders";
+import OrderDetail from "@/pages/orders/order-detail";
 import { createBrowserRouter } from "react-router-dom";
 import { getBasePath } from "@/utils/zma";
 
@@ -69,6 +71,22 @@ const router = createBrowserRouter(
           element: <AccountInfoPage />,
           handle: {
             title: "Thông tin tài khoản",
+            back: true,
+          },
+        },
+        {
+          path: "/orders",
+          element: <OrdersPage />,
+          handle: {
+            title: "Đơn đã mua",
+            back: true,
+          },
+        },
+        {
+          path: "/orders/:id",
+          element: <OrderDetail />,
+          handle: {
+            title: "Chi tiết đơn hàng",
             back: true,
           },
         },

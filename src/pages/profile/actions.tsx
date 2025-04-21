@@ -27,7 +27,7 @@ export default function ProfileActions() {
         {
           label: "Theo dõi đơn hàng",
           icon: PackageIcon,
-          onClick: toBeImplemented,
+          onClick: () => navigate("/orders"),
         },
         {
           label: "Lịch sử mua hàng",
