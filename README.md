@@ -50,9 +50,9 @@ This template is built using **Vite 5.x**, which is **not compatible** with Zalo
 
 1. **Deploy** your mini program to Zalo using the ID created.
 
-   If you’re using Zalo Mini App Extension: navigate to the Deploy panel > Login > Deploy.
+   If you're using Zalo Mini App Extension: navigate to the Deploy panel > Login > Deploy.
 
-   If you’re using `zmp-cli`:
+   If you're using `zmp-cli`:
 
    ```bash
    zmp login
@@ -72,7 +72,7 @@ Folder structure:
   - **`components`**: Reusable components written in React.js.
   - **`css`**: Stylesheets; pre-processors are also supported.
   - **`mock`**: Example data as json files.
-  - **`pages`**: A Page is a React component registered in the router that represents a full view. Smaller sections within the page can be components for better maintainability, though they don’t necessarily need to be reusable.
+  - **`pages`**: A Page is a React component registered in the router that represents a full view. Smaller sections within the page can be components for better maintainability, though they don't necessarily need to be reusable.
   - **`static`**: Static assets to be deployed along with your Mini App. Notice: large static assets should be served from a CDN.
   - **`utils`**: Reusable utility functions, such as API integration, client-side cart management, formatting, etc.
   - **`app.tsx`**: Root component of your entire Mini App. React DOM will mount this component to the element `#app`.
@@ -121,3 +121,75 @@ Adjust CSS variables in `src/css/tailwind.scss` as needed to fit your desired br
 | `--primary: red;`                     | `--primary: #008000;`                     |
 | ------------------------------------- | ----------------------------------------- |
 | ![Red](./docs/primary-color-red.webp) | ![Green](./docs/primary-color-green.webp) |
+
+### Project Structure
+
+```
+project/
+├── .git/                      # Thư mục Git
+├── .vscode/                   # Cấu hình Visual Studio Code
+├── docs/                      # Tài liệu và hình ảnh sử dụng trong README
+├── node_modules/              # Thư viện dependencies
+├── src/                       # Mã nguồn chính của ứng dụng
+│   ├── api/                   # Các API calls và các hàm liên quan
+│   ├── components/            # Các components có thể tái sử dụng
+│   │   ├── vectors/           # Biểu tượng vector và SVG
+│   │   ├── button.tsx         # Component nút
+│   │   ├── carousel.tsx       # Component trình chiếu
+│   │   ├── footer.tsx         # Component footer
+│   │   ├── header.tsx         # Component header
+│   │   ├── product-item.tsx   # Component hiển thị sản phẩm
+│   │   ├── product-grid.tsx   # Grid hiển thị nhiều sản phẩm
+│   │   └── ...                # Các components khác
+│   ├── css/                   # Stylesheet và cấu hình CSS
+│   ├── enums/                 # Các enum được sử dụng trong ứng dụng
+│   ├── mock/                  # Dữ liệu mẫu để phát triển
+│   │   ├── addresses.ts       # Dữ liệu mẫu về địa chỉ
+│   │   ├── banners.json       # Dữ liệu mẫu về banner
+│   │   ├── categories.json    # Dữ liệu mẫu về danh mục
+│   │   └── products.json      # Dữ liệu mẫu về sản phẩm
+│   ├── models/                # Định nghĩa các model dữ liệu
+│   ├── pages/                 # Các trang của ứng dụng
+│   │   ├── address/           # Trang quản lý địa chỉ
+│   │   ├── cart/              # Trang giỏ hàng
+│   │   ├── catalog/           # Trang danh mục sản phẩm
+│   │   ├── checkout/          # Trang thanh toán
+│   │   ├── home/              # Trang chủ
+│   │   ├── orders/            # Trang quản lý đơn hàng
+│   │   ├── payment-success/   # Trang xác nhận thanh toán thành công
+│   │   ├── product-detail/    # Trang chi tiết sản phẩm
+│   │   ├── profile/           # Trang thông tin người dùng
+│   │   └── search/            # Trang tìm kiếm
+│   ├── services/              # Các service phục vụ ứng dụng
+│   ├── state/                 # Quản lý trạng thái ứng dụng
+│   ├── static/                # Tài nguyên tĩnh (hình ảnh, fonts, ...)
+│   ├── types/                 # Định nghĩa TypeScript types
+│   ├── utils/                 # Các hàm tiện ích
+│   │   ├── auth.ts            # Xác thực người dùng
+│   │   ├── cart.ts            # Xử lý giỏ hàng
+│   │   ├── format.ts          # Định dạng dữ liệu
+│   │   ├── formatters.ts      # Các hàm định dạng
+│   │   ├── request.ts         # Xử lý HTTP requests
+│   │   ├── template.ts        # Hàm liên quan đến template
+│   │   └── zma.ts             # Tiện ích cho Zalo Mini App
+│   ├── app.ts                 # Cấu hình ứng dụng
+│   ├── app.tsx                # Component gốc của ứng dụng
+│   ├── global.d.ts            # Khai báo TypeScript toàn cục
+│   ├── hooks.ts               # Custom React hooks
+│   ├── router.tsx             # Cấu hình định tuyến
+│   ├── state.ts               # Quản lý trạng thái ứng dụng (sử dụng Jotai)
+│   ├── types.d.ts             # Khai báo TypeScript cho các đối tượng
+│   └── types.ts               # Định nghĩa TypeScript types
+├── www/                       # Thư mục build sản phẩm
+├── .env                       # Biến môi trường
+├── .gitignore                 # Cấu hình Git ignore
+├── app-config.json            # Cấu hình Zalo Mini App
+├── index.html                 # HTML entry point
+├── package-lock.json          # Dependency lock file
+├── package.json               # Cấu hình npm và dependencies
+├── postcss.config.js          # Cấu hình PostCSS
+├── tailwind.config.js         # Cấu hình TailwindCSS
+├── tsconfig.json              # Cấu hình TypeScript
+├── vite.config.mts            # Cấu hình Vite
+└── zmp-cli.json               # Cấu hình Zalo Mini App CLI
+```
