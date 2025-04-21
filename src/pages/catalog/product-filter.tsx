@@ -1,52 +1,65 @@
 import { Select } from "@/components/lazyloaded";
 import { SelectSkeleton } from "@/components/skeleton";
 import { useAtom, useAtomValue } from "jotai";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
-  colorsState,
-  selectedColorState,
-  selectedSizeState,
-  sizesState,
-} from "@/state";
-import { Color } from "types";
+  inventoryCategoriesState,
+  selectedInventoryCategoryState
+} from "@/state/catalog.state";
+import { InventoryItemCategory } from "@/types";
+import { services } from "@/services/services";
 
 export default function ProductFilter() {
-  const sizes = useAtomValue(sizesState);
-  const [size, setSize] = useAtom(selectedSizeState);
-  const colors = useAtomValue(colorsState);
-  const [color, setColor] = useAtom(selectedColorState);
+  const [categories, setCategories] = useAtom(inventoryCategoriesState);
+  const [selectedCategory, setSelectedCategory] = useAtom(selectedInventoryCategoryState);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await services.category.getCategories();
+        console.log('Categories response:', response); // Log để kiểm tra dữ liệu
+        if (response && response.Data) {
+          setCategories(response.Data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [setCategories]);
+
+  const handleCategoryChange = (category: InventoryItemCategory | undefined) => {
+    setSelectedCategory(category);
+  };
+
+  if (loading) {
+    return <div className="px-4 py-3">Đang tải danh mục...</div>;
+  }
 
   return (
     <div className="flex px-4 py-3 space-x-2 overflow-x-auto">
       <Suspense fallback={<SelectSkeleton width={110} />}>
         <Select
-          items={sizes}
-          value={size}
-          onChange={setSize}
-          renderTitle={(selectedSize?: string) =>
-            `Kích thước${selectedSize ? `: ${selectedSize}` : ""}`
+          items={categories}
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          renderTitle={(category?: InventoryItemCategory) =>
+            `Nhóm hàng${category ? `: ${category.item_category_name}` : ""}`
           }
-          renderItemKey={(size: string) => String(size)}
+          renderItemLabel={(category: InventoryItemCategory) => category.item_category_name}
+          renderItemKey={(category: InventoryItemCategory) => category.inventory_item_category_id}
         />
       </Suspense>
-      <Suspense fallback={<SelectSkeleton width={95} />}>
-        <Select
-          items={colors}
-          value={color}
-          onChange={setColor}
-          renderTitle={(selectedColor?: Color) =>
-            `Màu sắc${selectedColor ? `: ${selectedColor.name}` : ""}`
-          }
-          renderItemLabel={(color: Color) => color.name}
-          renderItemKey={(color: Color) => color.name}
-        />
-      </Suspense>
-      {(color !== undefined || size !== undefined) && (
+      {selectedCategory && (
         <button
           className="bg-primary text-white rounded-full h-8 flex-none px-3"
           onClick={() => {
-            setColor(undefined);
-            setSize(undefined);
+            setSelectedCategory(undefined);
           }}
         >
           Xoá bộ lọc

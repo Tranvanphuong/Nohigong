@@ -1,8 +1,9 @@
 {
   "app": {
-    "title": "ZaUI Fashion",
+    "title": "MISA Eshop",
     "textColor": "black",
-    "headerColor": "#ffffff",
+
+    "headerColor": "#FFECAD",
     "statusBar": "normal",
     "actionBarHidden": true,
     "hideAndroidBottomNavigationBar": false,
@@ -15,6 +16,6 @@
   "template": {
     "name": "zaui-fashion",
     "apiUrl": "https://eshopapp.misa.vn/g2/api/",
-    "oaIDtoOpenChat": ""
+    "oaIDtoOpenChat": "1958015634607501082"
   }
 }

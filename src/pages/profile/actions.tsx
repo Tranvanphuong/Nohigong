@@ -21,13 +21,13 @@ export default function ProfileActions() {
         },
         {
           label: "Địa chỉ nhận hàng",
-          icon: "",
+          icon: ProfileIcon,
           onClick: () => navigate("/address"),
         },
         {
           label: "Theo dõi đơn hàng",
           icon: PackageIcon,
-          onClick: toBeImplemented,
+          onClick: () => navigate("/orders"),
         },
         {
           label: "Lịch sử mua hàng",
@@ -41,7 +41,7 @@ export default function ProfileActions() {
           onClick={action.onClick}
         >
           <div className="w-10 h-10 rounded-full bg-[#EBEFF7] flex items-center justify-center">
-            <action.icon active />
+            {action.icon && <action.icon active />}
           </div>
           <div className="text-2xs text-center">{action.label}</div>
         </div>

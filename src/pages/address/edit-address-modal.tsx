@@ -2,21 +2,25 @@ import { Modal, Input, Box } from "zmp-ui";
 import { useAtom } from "jotai";
 import { shippingAddressesState } from "@/state";
 import { ShippingAddress } from "@/types/address";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@/components/button";
 import AddressSelector from "./address-selector";
 import Address from "@/models/Address";
+import addressService from "@/services/addressService";
 
-interface AddAddressModalProps {
+interface EditAddressModalProps {
   visible: boolean;
   onClose: () => void;
+  addressId?: string;
 }
 
-export default function AddAddressModal({
+export default function EditAddressModal({
   visible,
   onClose,
-}: AddAddressModalProps) {
+  addressId,
+}: EditAddressModalProps) {
   const [addresses, setAddresses] = useAtom(shippingAddressesState);
+
   const [form, setForm] = useState({
     fullName: "",
     phone: "",
@@ -31,6 +35,34 @@ export default function AddAddressModal({
   );
   const [selectedWard, setSelectedWard] = useState<Address | null>(null);
   const [selectedHamlet, setSelectedHamlet] = useState<Address | null>(null);
+
+  // Tải dữ liệu địa chỉ cần chỉnh sửa (nếu có)
+  useEffect(() => {
+    if (visible && addressId) {
+      const addressToEdit = addresses.find((a) => a.id === addressId);
+      if (addressToEdit) {
+        setForm({
+          fullName: addressToEdit.fullName,
+          phone: addressToEdit.phone,
+          addressDetail: addressToEdit.address.split(", ").pop() || "",
+        });
+
+        // TODO: Parse địa chỉ hiện tại để chọn lại Tỉnh/Huyện/Xã từ chuỗi địa chỉ
+        // Đây là phần phức tạp cần có logic phân tích chuỗi địa chỉ
+      }
+    } else {
+      // Reset form khi mở modal trong chế độ tạo mới
+      setForm({
+        fullName: "",
+        phone: "",
+        addressDetail: "",
+      });
+      setSelectedProvince(null);
+      setSelectedDistrict(null);
+      setSelectedWard(null);
+      setSelectedHamlet(null);
+    }
+  }, [visible, addressId, addresses]);
 
   const handleAddressSelected = (
     province: Address | null,
@@ -73,26 +105,41 @@ export default function AddAddressModal({
   const handleSubmit = () => {
     const fullAddress = buildFullAddress();
 
-    const newAddress: ShippingAddress = {
-      id: Date.now().toString(),
-      fullName: form.fullName,
-      phone: form.phone,
-      address: fullAddress,
-      isDefault: addresses.length === 0, // Đặt làm địa chỉ mặc định nếu là địa chỉ đầu tiên
-      province: selectedProvince || undefined,
-      district: selectedDistrict || undefined,
-      ward: selectedWard || undefined,
-      hamlet: selectedHamlet || undefined,
-    };
-    setAddresses([...addresses, newAddress]);
-    onClose();
+    if (addressId) {
+      // Cập nhật địa chỉ hiện có
+      const updatedAddresses = addresses.map((address) => {
+        if (address.id === addressId) {
+          return {
+            ...address,
+            fullName: form.fullName,
+            phone: form.phone,
+            address: fullAddress,
+            province: selectedProvince || undefined,
+            district: selectedDistrict || undefined,
+            ward: selectedWard || undefined,
+            hamlet: selectedHamlet || undefined,
+          };
+        }
+        return address;
+      });
+      setAddresses(updatedAddresses);
+    } else {
+      // Thêm địa chỉ mới
+      const newAddress: ShippingAddress = {
+        id: Date.now().toString(),
+        fullName: form.fullName,
+        phone: form.phone,
+        address: fullAddress,
+        isDefault: addresses.length === 0, // Đặt làm địa chỉ mặc định nếu là địa chỉ đầu tiên
+        province: selectedProvince || undefined,
+        district: selectedDistrict || undefined,
+        ward: selectedWard || undefined,
+        hamlet: selectedHamlet || undefined,
+      };
+      setAddresses([...addresses, newAddress]);
+    }
 
-    // Reset form
-    setForm({ fullName: "", phone: "", addressDetail: "" });
-    setSelectedProvince(null);
-    setSelectedDistrict(null);
-    setSelectedWard(null);
-    setSelectedHamlet(null);
+    onClose();
   };
 
   const isFormValid = () => {
@@ -109,7 +156,7 @@ export default function AddAddressModal({
     <Modal
       visible={visible}
       onClose={onClose}
-      title="Thêm địa chỉ mới"
+      title={addressId ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}
       modalClassName="h-4/5"
     >
       <div className="p-4 space-y-4 overflow-auto">
@@ -146,7 +193,7 @@ export default function AddAddressModal({
           onClick={handleSubmit}
           disabled={!isFormValid()}
         >
-          Thêm địa chỉ
+          {addressId ? "Cập nhật địa chỉ" : "Thêm địa chỉ"}
         </Button>
       </div>
     </Modal>

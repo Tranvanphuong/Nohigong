@@ -82,12 +82,12 @@ export default function ProductItem(props: ProductItemProps) {
         {/* <div className="text-3xs text-subtitle line-through">
           {formatPrice(props.product.unit_price)}
         </div> */}
-        <button
+        {/* <button
           onClick={handleQuickBuy}
           className="mt-2 w-full bg-red-500 text-white py-1 rounded hover:bg-red-600"
         >
           Mua ngay
-        </button>
+        </button> */}
       </div>
     </div>
   );
