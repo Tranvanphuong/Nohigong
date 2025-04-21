@@ -7,6 +7,7 @@ import {
 } from "zmp-sdk/apis";
 import { getUserNumber } from "@/utils/request";
 import { getToken } from "@/utils/auth";
+import { Order, OrderImpl } from "@/models/Order";
 
 export interface InventoryItemCategory {
   inventory_item_category_id: string;
@@ -121,37 +122,43 @@ export const services = {
       }
     },
 
-    getInventoryItems: async (params?: { inventory_item_category_id?: string }) => {
+    getInventoryItems: async (params?: {
+      inventory_item_category_id?: string;
+    }) => {
       try {
-        const response = await fetch('https://eshopapp.misa.vn/g2/api/dimob/inventoryItems/list-combo', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${await getToken()}`
-          },
-          body: JSON.stringify({
-            skip: 0,
-            take: 20,
-            sort: "",
-            filter: params?.inventory_item_category_id ? 
-              `[{"property":"inventory_item_category_id","value":"${params.inventory_item_category_id}"}]` : 
-              "[]",
-            emptyFilter: "",
-            columns: "*",
-            selectedValue: "[{\"property\":21,\"value\":\"2714c71b-41ae-45f7-a675-729fbb071d8f\"}]"
-          })
-        });
-        
+        const response = await fetch(
+          "https://eshopapp.misa.vn/g2/api/dimob/inventoryItems/list-combo",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${await getToken()}`,
+            },
+            body: JSON.stringify({
+              skip: 0,
+              take: 20,
+              sort: "",
+              filter: params?.inventory_item_category_id
+                ? `[{"property":"inventory_item_category_id","value":"${params.inventory_item_category_id}"}]`
+                : "[]",
+              emptyFilter: "",
+              columns: "*",
+              selectedValue:
+                '[{"property":21,"value":"2714c71b-41ae-45f7-a675-729fbb071d8f"}]',
+            }),
+          }
+        );
+
         if (!response.ok) {
-          throw new Error('Failed to fetch inventory items');
+          throw new Error("Failed to fetch inventory items");
         }
-        
+
         return response.json();
       } catch (error) {
         console.error("Error fetching inventory items:", error);
         throw error;
       }
-    }
+    },
   },
 
   // Dịch vụ quản lý file
@@ -171,7 +178,6 @@ export const services = {
         // Hiển thị thông báo thành công
         await showToast({
           message: "Đặt hàng thành công!",
-          type: "success",
         });
 
         return response;
@@ -181,9 +187,53 @@ export const services = {
         // Hiển thị thông báo lỗi
         await showToast({
           message: "Đặt hàng thất bại, vui lòng thử lại!",
-          type: "error",
         });
 
+        throw error;
+      }
+    },
+
+    // Lấy chi tiết đơn hàng dựa trên orderId
+    getOrder: async (orderId: string): Promise<OrderImpl> => {
+      try {
+        const response = await externalApi.getOrderDetail(orderId);
+
+        if (!response || !response.Data) {
+          throw new Error("Không tìm thấy thông tin đơn hàng.");
+        }
+
+        // Chuyển đổi dữ liệu từ API thành đối tượng Order
+        const orderData = response.Data;
+        return new OrderImpl(orderData);
+      } catch (error) {
+        console.error("Error fetching order details:", error);
+        throw error;
+      }
+    },
+
+    // Lấy danh sách đơn hàng với phân trang
+    getOrderList: async (
+      page: number = 1,
+      pageSize: number = 10
+    ): Promise<{ orders: OrderImpl[]; totalCount: number }> => {
+      try {
+        const response = await externalApi.getOrderList({ page, pageSize });
+
+        if (!response || !response.Data) {
+          return { orders: [], totalCount: 0 };
+        }
+
+        // Chuyển đổi danh sách đơn hàng thành mảng các đối tượng Order
+        const orders = response.Data.map(
+          (orderData: any) => new OrderImpl(orderData)
+        );
+
+        return {
+          orders,
+          totalCount: response.Total || 0,
+        };
+      } catch (error) {
+        console.error("Error fetching order list:", error);
         throw error;
       }
     },
@@ -191,28 +241,31 @@ export const services = {
 
   category: {
     async getCategories(): Promise<InventoryItemCategoryResponse> {
-      const response = await fetch('https://eshopapp.misa.vn/g2/api/dimob/inventoryItemCategorys/list-combo', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await getToken()}`
-        },
-        body: JSON.stringify({
-          skip: 0,
-          take: 20,
-          sort: "",
-          filter: "[]",
-          emptyFilter: "",
-          columns: "*",
-          selectedValue: ""
-        })
-      });
-      
+      const response = await fetch(
+        "https://eshopapp.misa.vn/g2/api/dimob/inventoryItemCategorys/list-combo",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await getToken()}`,
+          },
+          body: JSON.stringify({
+            skip: 0,
+            take: 20,
+            sort: "",
+            filter: "[]",
+            emptyFilter: "",
+            columns: "*",
+            selectedValue: "",
+          }),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to fetch categories');
+        throw new Error("Failed to fetch categories");
       }
-      
+
       return response.json();
-    }
-  }
+    },
+  },
 };

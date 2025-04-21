@@ -1,77 +1,137 @@
-import React from "react";
-import { Page, Icon, Box, Button } from "zmp-ui";
+import React, { useEffect, useState } from "react";
+import { Page, Icon, Box, Button, Spinner } from "zmp-ui";
 import { useNavigate, useParams } from "react-router-dom";
+import { Order, OrderImpl } from "@/models/Order";
+import { services } from "@/services/services";
+import { formatCurrency, formatDate } from "@/utils/formatters";
 
 const OrderDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [order, setOrder] = useState<OrderImpl | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Hàm định dạng giá
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
+  const formatPrice = (price: number) => {
+    return formatCurrency(price);
   };
 
-  // Dữ liệu mẫu chi tiết đơn hàng
-  const mockOrderDetail = {
-    id: 1,
-    orderNumber: "DH23456789",
-    storeName: "UNITER Shoes Store",
-    storeLogo: "",
-    status: "Hoàn thành",
-    statusHistory: [
+  // Tải dữ liệu đơn hàng khi component được mount
+  useEffect(() => {
+    const fetchOrderDetail = async () => {
+      if (!id) {
+        setError("Không tìm thấy mã đơn hàng");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const orderData = await services.order.getOrder(id);
+        setOrder(orderData as OrderImpl);
+      } catch (err) {
+        console.error("Lỗi khi tải thông tin đơn hàng:", err);
+        setError("Không thể tải thông tin đơn hàng. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrderDetail();
+  }, [id]);
+
+  // Tạo dữ liệu lịch sử trạng thái đơn hàng dựa trên trạng thái hiện tại
+  const getOrderStatusHistory = () => {
+    if (!order) return [];
+
+    const statuses = [
       {
         status: "Đặt hàng thành công",
-        time: "18/07/2023 17:11",
+        time: order.getFormattedOrderDate(),
         isCompleted: true,
       },
-      {
-        status: "Người bán đang chuẩn bị hàng",
-        time: "18/07/2023 17:32",
+    ];
+
+    if (order.order_status >= 20) {
+      statuses.push({
+        status: "Người bán đã xác nhận",
+        time: order.getFormattedOrderDate(),
         isCompleted: true,
-      },
-      {
-        status: "Đơn hàng đang vận chuyển",
-        time: "19/07/2023 08:45",
+      });
+    }
+
+    if (order.order_status >= 30) {
+      statuses.push({
+        status: "Đang xử lý đơn hàng",
+        time: order.getFormattedOrderDate(),
         isCompleted: true,
-      },
-      {
-        status: "Đơn hàng đã được giao",
-        time: "20/07/2023 09:30",
+      });
+    }
+
+    if (order.order_status >= 40) {
+      statuses.push({
+        status: "Đang giao hàng",
+        time: order.getFormattedOrderDate(),
         isCompleted: true,
-      },
-      {
+      });
+    }
+
+    if (order.order_status >= 50) {
+      statuses.push({
         status: "Đơn hàng hoàn thành",
-        time: "20/07/2023 09:45",
+        time: order.getFormattedOrderDate(),
         isCompleted: true,
-      },
-    ],
-    items: [
-      {
-        id: 101,
-        name: "Ckxmhm 38-47 Dép Nam Nhẹ Bền Sandal",
-        image: "https://placekitten.com/200/200",
-        variant: "Kaki,41",
-        quantity: 1,
-        price: 214920,
-      },
-    ],
-    paymentMethod: "Thanh toán khi nhận hàng (COD)",
-    shippingInfo: {
-      name: "Nguyễn Văn A",
-      phone: "0912345678",
-      address: "123 Đường ABC, Phường XYZ, Quận 1, TP. Hồ Chí Minh",
-    },
-    totalAmount: 214920,
-    shippingFee: 0,
-    discount: 0,
-    finalAmount: 214920,
-    placedAt: "18/07/2023 17:11",
+      });
+    }
+
+    if (order.order_status === 60) {
+      statuses.push({
+        status: "Đơn hàng đã hủy",
+        time: order.cancel_date
+          ? formatDate(order.cancel_date)
+          : order.getFormattedOrderDate(),
+        isCompleted: true,
+      });
+    }
+
+    if (order.order_status === 70) {
+      statuses.push({
+        status: "Đơn hàng đã trả lại",
+        time: order.getFormattedOrderDate(),
+        isCompleted: true,
+      });
+    }
+
+    return statuses;
   };
+
+  // Hiển thị trạng thái loading
+  if (loading) {
+    return (
+      <Page className="flex items-center justify-center h-screen">
+        <Spinner />
+      </Page>
+    );
+  }
+
+  // Hiển thị thông báo lỗi
+  if (error || !order) {
+    return (
+      <Page className="flex flex-col items-center justify-center h-screen p-4">
+        <div className="text-center mb-4 text-red-500">
+          <Icon icon="zi-close-circle" size={48} />
+        </div>
+        <div className="text-lg font-medium text-center">
+          {error || "Không tìm thấy đơn hàng"}
+        </div>
+        <Button className="mt-4" onClick={() => navigate("/orders")}>
+          Quay lại danh sách đơn hàng
+        </Button>
+      </Page>
+    );
+  }
+
+  const statusHistory = getOrderStatusHistory();
 
   return (
     <Page className="bg-gray-50">
@@ -89,16 +149,14 @@ const OrderDetail = () => {
       <Box className="mb-3 rounded-none">
         <div className="p-4 bg-primary text-white">
           <div className="font-medium text-lg mb-1">
-            {mockOrderDetail.status}
+            {order.getStatusText()}
           </div>
-          <div className="text-sm">
-            Mã đơn hàng: {mockOrderDetail.orderNumber}
-          </div>
+          <div className="text-sm">Mã đơn hàng: {order.ref_no}</div>
         </div>
 
         <div className="p-4 bg-white">
           <div className="relative">
-            {mockOrderDetail.statusHistory.map((step, index) => (
+            {statusHistory.map((step, index) => (
               <div key={index} className="flex mb-4 last:mb-0">
                 <div className="mr-3 relative">
                   <div
@@ -110,7 +168,7 @@ const OrderDetail = () => {
                       <Icon icon="zi-check" className="text-white text-xs" />
                     )}
                   </div>
-                  {index < mockOrderDetail.statusHistory.length - 1 && (
+                  {index < statusHistory.length - 1 && (
                     <div
                       className={`absolute top-5 left-2.5 w-0.5 h-full -ml-px ${
                         step.isCompleted ? "bg-primary" : "bg-gray-300"
@@ -133,15 +191,11 @@ const OrderDetail = () => {
         <div className="p-4">
           <div className="flex items-center">
             <div className="w-8 h-8 bg-gray-100 rounded-full overflow-hidden flex items-center justify-center mr-2">
-              <img
-                src={
-                  mockOrderDetail.storeLogo || "https://placekitten.com/50/50"
-                }
-                alt={mockOrderDetail.storeName}
-                className="w-full h-full object-cover"
-              />
+              <Icon icon="zi-user" />
             </div>
-            <span className="font-medium">{mockOrderDetail.storeName}</span>
+            <span className="font-medium">
+              {order.seller_name || order.page_name}
+            </span>
           </div>
         </div>
       </Box>
@@ -150,23 +204,31 @@ const OrderDetail = () => {
       <Box className="mb-3">
         <div className="p-4">
           <h2 className="font-medium mb-3">Sản phẩm đã mua</h2>
-          {mockOrderDetail.items.map((item, index) => (
+          {order.Details.map((item, index) => (
             <div key={index} className="flex mb-3 last:mb-0">
-              <div className="w-20 h-20 bg-gray-100 rounded-md overflow-hidden mr-3">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-20 h-20 bg-gray-100 rounded-md overflow-hidden mr-3 flex items-center justify-center">
+                {item.file_name ? (
+                  <img
+                    src={services.product.getImageUrl(item.file_name)}
+                    alt={item.inventory_item_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Icon icon="zi-photo" />
+                )}
               </div>
               <div className="flex-1">
-                <div className="font-medium mb-1 line-clamp-2">{item.name}</div>
+                <div className="font-medium mb-1 line-clamp-2">
+                  {item.inventory_item_name}
+                </div>
                 <div className="text-gray-500 text-sm">
-                  {item.variant && <span className="mr-1">{item.variant}</span>}
+                  {item.sku_code && (
+                    <span className="mr-1">SKU: {item.sku_code}</span>
+                  )}
                   <span>x{item.quantity}</span>
                 </div>
                 <div className="text-primary mt-1">
-                  {formatPrice(item.price)}
+                  {formatPrice(order.total_amount / order.total_item_quantity)}
                 </div>
               </div>
             </div>
@@ -181,27 +243,25 @@ const OrderDetail = () => {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Tổng tiền hàng:</span>
-              <span>{formatPrice(mockOrderDetail.totalAmount)}</span>
+              <span>{order.getFormattedTotal()}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Phí vận chuyển:</span>
-              <span>{formatPrice(mockOrderDetail.shippingFee)}</span>
+              <span>{formatPrice(0)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Giảm giá:</span>
-              <span className="text-primary">
-                -{formatPrice(mockOrderDetail.discount)}
-              </span>
+              <span className="text-primary">-{formatPrice(0)}</span>
             </div>
             <div className="flex justify-between font-medium mt-2">
               <span>Tổng thanh toán:</span>
-              <span className="text-primary">
-                {formatPrice(mockOrderDetail.finalAmount)}
-              </span>
+              <span className="text-primary">{order.getFormattedTotal()}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Phương thức thanh toán:</span>
-              <span>{mockOrderDetail.paymentMethod}</span>
+              <span>
+                {order.payment_type || "Thanh toán khi nhận hàng (COD)"}
+              </span>
             </div>
           </div>
         </div>
@@ -214,15 +274,15 @@ const OrderDetail = () => {
           <div className="space-y-2">
             <div>
               <div className="text-gray-500 text-sm">Người nhận:</div>
-              <div>{mockOrderDetail.shippingInfo.name}</div>
+              <div>{order.recipient_name}</div>
             </div>
             <div>
               <div className="text-gray-500 text-sm">Số điện thoại:</div>
-              <div>{mockOrderDetail.shippingInfo.phone}</div>
+              <div>{order.recipient_tel}</div>
             </div>
             <div>
               <div className="text-gray-500 text-sm">Địa chỉ:</div>
-              <div>{mockOrderDetail.shippingInfo.address}</div>
+              <div>{order.recipient_address}</div>
             </div>
           </div>
         </div>
@@ -235,12 +295,18 @@ const OrderDetail = () => {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Mã đơn hàng:</span>
-              <span>{mockOrderDetail.orderNumber}</span>
+              <span>{order.ref_no}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Thời gian đặt hàng:</span>
-              <span>{mockOrderDetail.placedAt}</span>
+              <span>{order.getFormattedOrderDate()}</span>
             </div>
+            {order.employee_note && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Ghi chú:</span>
+                <span>{order.employee_note}</span>
+              </div>
+            )}
           </div>
         </div>
       </Box>
@@ -250,7 +316,20 @@ const OrderDetail = () => {
         <Button className="flex-1 bg-primary text-white">
           Liên hệ người bán
         </Button>
-        <Button className="flex-1 bg-gray-200 text-gray-800">Mua lại</Button>
+        {!order.canCancel() && (
+          <Button className="flex-1 bg-gray-200 text-gray-800">Mua lại</Button>
+        )}
+        {order.canCancel() && (
+          <Button
+            className="flex-1 bg-red-500 text-white"
+            onClick={() => {
+              // Xử lý hủy đơn hàng - sẽ thêm API sau
+              navigate("/orders");
+            }}
+          >
+            Hủy đơn hàng
+          </Button>
+        )}
       </div>
     </Page>
   );

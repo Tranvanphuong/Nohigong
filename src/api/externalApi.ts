@@ -1,3 +1,4 @@
+import { Order, OrderDetailImpl } from "@/models/Order";
 import { post, request } from "../utils/request";
 
 const BASE_URL = "https://eshopapp.misa.vn/g2/api";
@@ -26,6 +27,45 @@ export const externalApi = {
 
   createOrder: (data: any) => {
     return post(`bizmob/MessageOrderMobs/commit`, data);
+  },
+
+  // API cho quản lý đơn hàng
+  getOrderDetail: (orderId: string) => {
+    return request<any>(`${BASE_URL}/bizmob/MessageOrderMobs/${orderId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  },
+
+  getOrderList: (params: { page: number; pageSize: number }) => {
+    return request<any>(`${BASE_URL}/bizmob/MessageOrderMobs/list`, {
+      method: "POST",
+      body: JSON.stringify(params),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  },
+
+  getOrderWithDetail: async () => {
+    const response = await post<{ Data: OrderDetailImpl[] }>(
+      "bizmob/MessageOrderMobs/list-with-detail`",
+      {
+        skip: 0,
+        take: 50,
+        sort: '[{"property":"274","desc":true}]',
+        filter:
+          '[{"op":14,"aop":1,"field":"120","ors":[],"isOptionFilter":false,"value":[120,10]},{"op":14,"aop":1,"field":"124","ors":[],"isOptionFilter":false,"value":["768536537082805933"]},{"op":7,"aop":1,"field":"218","ors":[],"isOptionFilter":false,"value":"10"}]',
+        emptyFilter: "",
+        columns:
+          "105,472,40,615,218,274,564,720,43,141,581,622,120,47,207,37,207,567,139,122,53,57,218,582,281,280,220,594,615,141,699,142,622,124,41,140,43,399,504,144,648,675,674,673,760",
+        view: 21,
+      }
+    );
+
+    return response.Data;
   },
 
   // API cho tải file
