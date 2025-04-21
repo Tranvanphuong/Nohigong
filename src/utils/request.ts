@@ -137,7 +137,7 @@ export const getProductDetail = async (id: string) => {
   console.log("getProductDetail called with id:", id);
   try {
     const response = await fetch(
-      `https://eshopapp.misa.vn/g2/api/di/InventoryItems/edit/${id}`,
+      `https://eshopapp.misa.vn/g2/api/dimob/InventoryItems/edit/${id}`,
       {
         headers: {
           accept: "application/json, text/plain, */*",

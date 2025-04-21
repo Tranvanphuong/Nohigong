@@ -1,6 +1,12 @@
 import { atom } from "jotai";
-import { atomFamily, unwrap, atomWithDefault } from "jotai/utils";
-import type { Cart, Category, Color, Product } from "@/types";
+import {
+  atomFamily,
+  unwrap,
+  atomWithDefault,
+  atomWithStorage,
+} from "jotai/utils";
+import type { Cart, Category, Color, Product, InventoryItemCategory } from "@/types";
+import { GetUserInfoReturns } from "@/types/user";
 import {
   post,
   requestWithFallback,
@@ -8,6 +14,7 @@ import {
   getProductDetail,
 } from "@/utils/request";
 import { getUserInfo } from "zmp-sdk";
+import { ShippingAddress } from "./types";
 
 export const userState = atomWithDefault(async () => {
   const user = await getUserInfo({
@@ -81,27 +88,27 @@ export const productsState = atom(async (get) => {
   }
 });
 
-export const filteredProductsState = atom(async (get) => {
-  const products = await get(productsState);
-  const filter = get(productFilterState);
+// export const filteredProductsState = atom(async (get) => {
+//   const products = await get(productsState);
+//   const filter = get(productFilterState);
   
-  if (!filter) return products;
+//   if (!filter) return products;
   
-  return products.filter(product => {
-    if (!product.inventory_item_category_name) return false;
+//   return products.filter(product => {
+//     if (!product.inventory_item_category_name) return false;
     
-    switch(filter) {
-      case 'dry':
-        return product.inventory_item_category_name.includes('Đồ ăn khô');
-      case 'clothes':
-        return product.inventory_item_category_name.includes('Quần áo');
-      case 'shoes':
-        return product.inventory_item_category_name.includes('Giày dép');
-      default:
-        return true;
-    }
-  });
-});
+//     switch(filter) {
+//       case 'dry':
+//         return product.inventory_item_category_name.includes('Đồ ăn khô');
+//       case 'clothes':
+//         return product.inventory_item_category_name.includes('Quần áo');
+//       case 'shoes':
+//         return product.inventory_item_category_name.includes('Giày dép');
+//       default:
+//         return true;
+//     }
+//   });
+// });
 
 export const flashSaleProductsState = atom((get) => get(productsState));
 
@@ -193,6 +200,12 @@ export const productDetailState = atom<Promise<Product | null>>(async (get) => {
   }
 });
 
+export const shippingAddressesState = atomWithStorage<ShippingAddress[]>(
+  "shipping-addresses",
+  []
+);
+export const selectedAddressState = atom<ShippingAddress | null>(null);
+
 // Quick Buy States
 export interface QuickBuyState {
   productId: string | null;
@@ -218,3 +231,64 @@ export const paymentMethodsState = atom([
   { id: "transfer", name: "Chuyển khoản", icon: "💳" },
   { id: "cash", name: "Tiền mặt", icon: "💵" },
 ]);
+
+export const inventoryCategoriesState = atom<InventoryItemCategory[]>([]);
+export const selectedInventoryCategoryState = atom<InventoryItemCategory | undefined>(undefined);
+
+// // State cho danh sách sản phẩm ở trang chủ
+// export const homeProductsState = atom(async () => {
+//   try {
+//     const response = await post<{ Data: Product[] }>(
+//       "dimob/InventoryItems/list",
+//       {
+//         skip: 0,
+//         take: 50,
+//         sort: '[{"property":"106","desc":false}]',
+//         filter: '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
+//         emptyFilter: "",
+//         columns: "106,32,105,107,18,108,10,161,742,109,113,111,127,128,153",
+//         view: 1,
+//       }
+//     );
+
+//     return response.Data;
+//   } catch (error) {
+//     console.error("Error fetching home products:", error);
+//     return [];
+//   }
+// });
+
+// // State cho danh sách sản phẩm ở trang danh mục
+// export const catalogProductsState = atom(async () => {
+//   try {
+//     const response = await post<{ Data: Product[] }>(
+//       "dimob/InventoryItems/list",
+//       {
+//         skip: 0,
+//         take: 50,
+//         sort: '[{"property":"106","desc":false}]',
+//         filter: '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
+//         emptyFilter: "",
+//         columns: "106,32,105,107,18,108,10,161,742,109,113,111,127,128,153",
+//         view: 1,
+//       }
+//     );
+
+//     return response.Data;
+//   } catch (error) {
+//     console.error("Error fetching catalog products:", error);
+//     return [];
+//   }
+// });
+
+// // State cho danh sách sản phẩm đã lọc ở trang danh mục
+// export const filteredCatalogProductsState = atom(async (get) => {
+//   const products = await get(catalogProductsState);
+//   const selectedCategory = get(selectedInventoryCategoryState);
+  
+//   if (!selectedCategory) return products;
+  
+//   return products.filter(product => 
+//     product.inventory_item_category_id === selectedCategory.inventory_item_category_id
+//   );
+// });

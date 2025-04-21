@@ -10,7 +10,9 @@ const ProductDetail = () => {
   console.log("ProductDetail - id from params:", id);
 
   const [productDetail, setProductDetail] = useAtom(productDetailState);
-  const [selectedProductId, setSelectedProductId] = useAtom(selectedProductIdState);
+  const [selectedProductId, setSelectedProductId] = useAtom(
+    selectedProductIdState
+  );
 
   useEffect(() => {
     console.log("ProductDetail - useEffect - id:", id);
@@ -44,19 +46,44 @@ const ProductDetail = () => {
   return (
     <Page>
       <div className="p-4">
-        <img 
-          src={`https://eshopapp.misa.vn/g2/api/di/FileResources/download/${productDetail.file_resource_id}`}
+        <img
+          src={`https://eshopapp.misa.vn/g2/api/di/FileResources/download/${productDetail.file_name}`}
           alt={productDetail.inventory_item_name}
           className="w-full h-64 object-cover rounded-lg mb-4"
         />
-        <h1 className="text-2xl font-bold mb-2">{productDetail.inventory_item_name}</h1>
+        <h1 className="text-2xl font-bold mb-2">
+          {productDetail.inventory_item_name}
+        </h1>
         <div className="text-xl font-semibold text-primary mb-4">
-          {productDetail.unit_price.toLocaleString('vi-VN')}đ
+          {productDetail.unit_price.toLocaleString("vi-VN")}đ
         </div>
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Mô tả sản phẩm</h2>
-          <p className="text-gray-600 whitespace-pre-line">{productDetail.description}</p>
-        </div>
+
+        {/* Mô tả sản phẩm */}
+        {productDetail.description && (
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold mb-2">Mô tả sản phẩm</h2>
+            <p className="text-gray-600 whitespace-pre-line">
+              {productDetail.description}
+            </p>
+          </div>
+        )}
+
+        {/* Thuộc tính sản phẩm */}
+        {productDetail.properties && productDetail.properties.length > 0 && (
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold mb-2">Thông số kỹ thuật</h2>
+            <div className="space-y-2">
+              {productDetail.properties.map((property) => (
+                <div key={property.inventory_item_property_id} className="flex justify-between">
+                  <span className="text-gray-600">{property.property_name}:</span>
+                  <span className="font-medium">{property.inventory_item_property_value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Thông tin sản phẩm */}
         <div className="mb-4">
           <h2 className="text-lg font-semibold mb-2">Thông tin sản phẩm</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -66,16 +93,20 @@ const ProductDetail = () => {
             </div>
             <div>
               <p className="text-gray-600">Danh mục:</p>
-              <p className="font-medium">{productDetail.inventory_item_category_name}</p>
+              <p className="font-medium">
+                {productDetail.inventory_item_category_name}
+              </p>
             </div>
             <div>
               <p className="text-gray-600">Thương hiệu:</p>
               <p className="font-medium">{productDetail.brand_name}</p>
             </div>
-            <div>
+            {/* <div>
               <p className="text-gray-600">Tình trạng:</p>
-              <p className="font-medium">{productDetail.instock > 0 ? 'Còn hàng' : 'Hết hàng'}</p>
-            </div>
+              <p className="font-medium">
+                {productDetail.instock > 0 ? "Còn hàng" : "Hết hàng"}
+              </p>
+            </div> */}
           </div>
         </div>
       </div>
@@ -83,4 +114,4 @@ const ProductDetail = () => {
   );
 };
 
-export default ProductDetail; 
+export default ProductDetail;

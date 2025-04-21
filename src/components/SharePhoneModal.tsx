@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { formatPhoneNumber } from "@/utils/format";
 import { getPhoneNumber } from "zmp-sdk";
-import { getToken } from "@/utils/auth";
+import { services } from "@/services/services";
 
 interface SharePhoneModalProps {
   isOpen: boolean;
@@ -11,32 +11,7 @@ interface SharePhoneModalProps {
 const savePhoneNumber = async (phone: string) => {
   console.log("savePhoneNumber", phone);
   try {
-    let savePhoneBody = {
-      customer_name: "test 8",
-      phone_number: phone,
-      address: "hà nội",
-      channel_id: 10,
-      channel_user_id: "nggiitss",
-      channel_user_name: "Anggitsss",
-      seller_id: "zalo",
-    };
-    const token = getToken();
-    const response = await fetch(
-      "https://eshopapp.misa.vn/g2/api/socialmob/CustomerChannels/save-customer",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(savePhoneBody),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error("Không thể lưu số điện thoại");
-    }
-
+    await services.customer.savePhoneNumber(phone, "test 8", "zalo");
     console.log("Đã lưu số điện thoại thành công");
   } catch (error) {
     console.error("Lỗi khi lưu số điện thoại:", error);

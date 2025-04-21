@@ -2,8 +2,8 @@ import {
   OrderHistoryIcon,
   PackageIcon,
   ProfileIcon,
-  VoucherIcon,
 } from "@/components/vectors";
+
 import { useToBeImplemented } from "@/hooks";
 import { useNavigate } from "react-router-dom";
 
@@ -20,9 +20,9 @@ export default function ProfileActions() {
           onClick: () => navigate("/profile/account-info"),
         },
         {
-          label: "Đổi voucher",
-          icon: VoucherIcon,
-          onClick: toBeImplemented,
+          label: "Địa chỉ nhận hàng",
+          icon: ProfileIcon,
+          onClick: () => navigate("/address"),
         },
         {
           label: "Theo dõi đơn hàng",
@@ -41,7 +41,7 @@ export default function ProfileActions() {
           onClick={action.onClick}
         >
           <div className="w-10 h-10 rounded-full bg-[#EBEFF7] flex items-center justify-center">
-            <action.icon active />
+            {action.icon && <action.icon active />}
           </div>
           <div className="text-2xs text-center">{action.label}</div>
         </div>
