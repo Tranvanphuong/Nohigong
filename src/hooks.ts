@@ -3,7 +3,7 @@ import { MutableRefObject, useLayoutEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { UIMatch, useMatches } from "react-router-dom";
 import { cartState, cartTotalState } from "@/state";
-import { Cart, CartItem, Product, SelectedOptions } from "types";
+import { Cart, CartItem, SelectedOptions } from "@/types/index";
 import { getDefaultOptions, isIdentical } from "@/utils/cart";
 import { getConfig } from "@/utils/template";
 import { openChat, purchase } from "zmp-sdk";
@@ -31,33 +31,59 @@ export function useRealHeight(
   return height;
 }
 
-export function useAddToCart(product: Product, editingCartItemId?: number) {
+export function useAddToCart(product: any, editingCartItemId?: number) {
   const [cart, setCart] = useAtom(cartState);
   const editing = useMemo(
     () => cart.find((item) => item.id === editingCartItemId),
     [cart, editingCartItemId]
   );
 
-  const [options, setOptions] = useState<SelectedOptions>(
+  const [options, setOptions] = useState<any>(
     editing ? editing.options : getDefaultOptions(product)
   );
 
-  function handleReplace(quantity: number, cart: Cart, editing: CartItem) {
+  // Hàm kiểm tra xem hai sản phẩm có giống nhau không
+  const isSameProduct = (item: any, currentProduct: any) => {
+    // Kiểm tra tồn tại các trường cần thiết để tránh lỗi
+    if (!item || !item.product || !currentProduct) {
+      return false;
+    }
+
+    // Lấy các ID để so sánh
+    const currentProductId =
+      currentProduct.inventory_item_id || currentProduct.id;
+    const itemProductId = item.product.inventory_item_id || item.product.id;
+
+    // So sánh sản phẩm dựa vào ID
+    // và CHỈ so sánh options nếu cả hai sản phẩm cùng ID
+    const isSameId = currentProductId === itemProductId;
+
+    // Nếu không có inventory_item_id (chỉ có id), thì so sánh thêm options
+    if (
+      isSameId &&
+      !currentProduct.inventory_item_id &&
+      !item.product.inventory_item_id
+    ) {
+      return isIdentical(item.options, options);
+    }
+
+    // Nếu có inventory_item_id, chỉ cần so sánh id và không quan tâm đến options
+    return isSameId;
+  };
+
+  function handleReplace(quantity: number, cartItems: any[], editing: any) {
     if (quantity === 0) {
       // the user wants to remove this item.
-      cart.splice(cart.indexOf(editing), 1);
+      cartItems.splice(cartItems.indexOf(editing), 1);
     } else {
-      const existed = cart.find(
-        (item) =>
-          item.id != editingCartItemId &&
-          item.product.id === product.id &&
-          isIdentical(item.options, options)
+      const existed = cartItems.find(
+        (item) => item.id != editingCartItemId && isSameProduct(item, product)
       );
       if (existed) {
         // there's another identical item in the cart; let's remove it and update the quantity in the editing item.
-        cart.splice(cart.indexOf(existed), 1);
+        cartItems.splice(cartItems.indexOf(existed), 1);
       }
-      cart.splice(cart.indexOf(editing), 1, {
+      cartItems.splice(cartItems.indexOf(editing), 1, {
         ...editing,
         options,
         quantity: existed
@@ -67,21 +93,26 @@ export function useAddToCart(product: Product, editingCartItemId?: number) {
     }
   }
 
-  function handleAppend(quantity: number, cart: Cart) {
-    const existed = cart.find(
-      (item) =>
-        item.product.id === product.id && isIdentical(item.options, options)
-    );
+  function handleAppend(quantity: number, cartItems: any[]) {
+    // Gỡ lỗi để xem dữ liệu sản phẩm và giỏ hàng
+    console.log("Product to add:", product);
+    console.log("Current cart:", cartItems);
+
+    const existed = cartItems.find((item) => isSameProduct(item, product));
+
+    // Gỡ lỗi sản phẩm đã tồn tại
+    console.log("Existing product found:", existed);
+
     if (existed) {
       // merging with another identical item in the cart.
-      cart.splice(cart.indexOf(existed), 1, {
+      cartItems.splice(cartItems.indexOf(existed), 1, {
         ...existed,
         quantity: existed.quantity + quantity,
       });
     } else {
       // this item is new, appending it to the cart.
-      cart.push({
-        id: cart.length + 1,
+      cartItems.push({
+        id: cartItems.length + 1,
         product,
         options,
         quantity,
@@ -90,8 +121,8 @@ export function useAddToCart(product: Product, editingCartItemId?: number) {
   }
 
   const addToCart = (quantity: number) => {
-    setCart((cart) => {
-      const res = [...cart];
+    setCart((currentCart) => {
+      const res = [...currentCart];
       if (editing) {
         handleReplace(quantity, res, editing);
       } else {

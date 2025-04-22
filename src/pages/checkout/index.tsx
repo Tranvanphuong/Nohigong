@@ -76,8 +76,8 @@ export default function CheckoutPage() {
     setNoteModal((prev) => ({ ...prev, visible: false }));
   };
 
-  const handleChangeNote = (value: string) => {
-    setNotes((prev) => ({ ...prev, [noteModal.type]: value }));
+  const handleChangeSellerNote = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNotes((prev) => ({ ...prev, seller: e.target.value }));
   };
 
   const handlePlaceOrder = async () => {
@@ -276,7 +276,7 @@ export default function CheckoutPage() {
                 onChange={(e) => setVoucher(e.target.value)}
               />
               <Button
-                className="flex-none px-3 py-1 bg-primary text-white rounded-lg"
+                className="flex-none px-3 py-1 bg-primary text-white rounded-lg  h-9"
                 disabled={!voucher}
               >
                 Áp dụng
@@ -288,59 +288,19 @@ export default function CheckoutPage() {
         {/* Ghi chú */}
         <Box className="rounded-none bg-white mb-1">
           <div className="px-3 py-2 space-y-2">
-            <div className="font-medium text-gray-800">Ghi chú</div>
+            <div className="font-medium text-gray-800 mb-2">Ghi chú</div>
 
-            <div
-              className="flex justify-between items-center py-2 border-b border-gray-100 cursor-pointer"
-              onClick={() => openNoteModal("seller")}
-            >
-              <div className="flex items-center text-gray-800">
-                <span className="min-w-[100px] text-sm">Người bán:</span>
-                <span className="text-sm text-gray-600 flex-1 truncate">
-                  {notes.seller ? notes.seller : "Thêm ghi chú"}
-                </span>
-              </div>
-              <div className="text-gray-400 flex-shrink-0 ml-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
+            <div className="flex items-center py-2">
+              <span className="min-w-[100px] text-sm text-gray-800">
+                Người bán:
+              </span>
+              <Input
+                className="flex-1 border-0 p-0 h-auto text-sm"
+                placeholder="Thêm ghi chú cho người bán..."
+                value={notes.seller}
+                onChange={handleChangeSellerNote}
+              />
             </div>
-            {/* 
-            <div
-              className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
-              onClick={() => openNoteModal("shipping")}
-            >
-              <div className="flex items-center text-gray-800">
-                <span className="min-w-[120px]">Vận chuyển:</span>
-                <span className="text-gray-600 flex-1 truncate">
-                  {notes.shipping ? notes.shipping : "Thêm ghi chú"}
-                </span>
-              </div>
-              <div className="text-gray-400 flex-shrink-0 ml-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div> */}
           </div>
         </Box>
 
@@ -385,7 +345,9 @@ export default function CheckoutPage() {
                     checked={paymentMethod === "bank_transfer"}
                     onChange={() => setPaymentMethod("bank_transfer")}
                   />
-                  <span className="ml-2 text-sm text-gray-800">Chuyển khoản</span>
+                  <span className="ml-2 text-sm text-gray-800">
+                    Chuyển khoản
+                  </span>
                 </div>
               </div>
             </div>
@@ -443,7 +405,9 @@ export default function CheckoutPage() {
         title={noteModal.title}
         placeholder={noteModal.placeholder}
         value={notes[noteModal.type as "seller" | "shipping"]}
-        onChange={handleChangeNote}
+        onChange={(value) =>
+          setNotes((prev) => ({ ...prev, [noteModal.type]: value }))
+        }
       />
     </Page>
   );

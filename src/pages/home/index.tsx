@@ -24,10 +24,7 @@ const HomePage: React.FunctionComponent = () => {
       <div className="bg-background space-y-2 mt-2">
         {/* <CategoryTabs /> */}
         <Suspense fallback={<div>Loading products...</div>}>
-          <ProductGrid
-            products={products}
-            className="pt-4 pb-[13px]"
-          />
+          <ProductGrid products={products} className="pt-4 pb-[13px]" />
         </Suspense>
       </div>
       <HorizontalDivider />

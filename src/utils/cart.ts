@@ -1,15 +1,12 @@
-import { Product, SelectedOptions } from "@/types";
+import { Product } from "@/types";
 
-export function getDefaultOptions(product: Product): SelectedOptions {
+export function getDefaultOptions(product: any): any {
   return {
     size: product.sizes?.[0],
-    color: product.colors?.[0].name,
+    color: product.colors?.[0]?.name,
   };
 }
 
-export function isIdentical(
-  option1: SelectedOptions,
-  option2: SelectedOptions
-) {
+export function isIdentical(option1: any, option2: any) {
   return option1.size === option2.size && option1.color === option2.color;
 }

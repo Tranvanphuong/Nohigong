@@ -36,6 +36,8 @@ export interface Product {
   sku_code?: string;
   brand_name?: string;
   instock?: number;
+
+  barcode?: string;
 }
 
 export interface Color {
@@ -106,4 +108,4 @@ export interface Classify {
 export interface Size {
   name: string;
   value: string;
-} 
+}

@@ -5,7 +5,13 @@ import {
   atomWithDefault,
   atomWithStorage,
 } from "jotai/utils";
-import type { Cart, Category, Color, Product, InventoryItemCategory } from "@/types";
+import type {
+  Cart,
+  Category,
+  Color,
+  Product,
+  InventoryItemCategory,
+} from "@/types";
 import { GetUserInfoReturns } from "@/types/user";
 import {
   post,
@@ -58,9 +64,9 @@ export const productsState1 = atom(async (get) => {
   >("products", []);
   return products.map((product) => ({
     ...product,
-    category: categories?.find(
-      (category) => category.id === product.categoryId
-    ) || null,
+    category:
+      categories?.find((category) => category.id === product.categoryId) ||
+      null,
   }));
 });
 
@@ -74,7 +80,8 @@ export const productsState = atom(async (get) => {
         skip: 0,
         take: 50,
         sort: '[{"property":"106","desc":false}]',
-        filter: '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
+        filter:
+          '[{"op":7,"aop":1,"field":"10","ors":[],"isOptionFilter":false,"value":0},{"op":7,"aop":1,"field":"114","ors":[],"isOptionFilter":false,"value":true}]',
         emptyFilter: "",
         columns: "106,32,105,107,18,108,10,161,742,109,113,111,127,128,153",
         view: 1,
@@ -91,12 +98,12 @@ export const productsState = atom(async (get) => {
 // export const filteredProductsState = atom(async (get) => {
 //   const products = await get(productsState);
 //   const filter = get(productFilterState);
-  
+
 //   if (!filter) return products;
-  
+
 //   return products.filter(product => {
 //     if (!product.inventory_item_category_name) return false;
-    
+
 //     switch(filter) {
 //       case 'dry':
 //         return product.inventory_item_category_name.includes('Đồ ăn khô');
@@ -146,7 +153,7 @@ export const productState = atomFamily((id: string) =>
   })
 );
 
-export const cartState = atom<Cart>([]);
+export const cartState = atom<Cart[]>([]);
 
 export const selectedCartItemIdsState = atom<number[]>([]);
 
@@ -233,7 +240,9 @@ export const paymentMethodsState = atom([
 ]);
 
 export const inventoryCategoriesState = atom<InventoryItemCategory[]>([]);
-export const selectedInventoryCategoryState = atom<InventoryItemCategory | undefined>(undefined);
+export const selectedInventoryCategoryState = atom<
+  InventoryItemCategory | undefined
+>(undefined);
 
 // // State cho danh sách sản phẩm ở trang chủ
 // export const homeProductsState = atom(async () => {
@@ -285,10 +294,10 @@ export const selectedInventoryCategoryState = atom<InventoryItemCategory | undef
 // export const filteredCatalogProductsState = atom(async (get) => {
 //   const products = await get(catalogProductsState);
 //   const selectedCategory = get(selectedInventoryCategoryState);
-  
+
 //   if (!selectedCategory) return products;
-  
-//   return products.filter(product => 
+
+//   return products.filter(product =>
 //     product.inventory_item_category_id === selectedCategory.inventory_item_category_id
 //   );
 // });
