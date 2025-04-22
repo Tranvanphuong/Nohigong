@@ -2,7 +2,8 @@ import { useAtom } from "jotai";
 import { productDetailState, selectedProductIdState } from "@/state";
 import { Page } from "zmp-ui";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Classify, Product } from "@/types";
 
 const ProductDetail = () => {
   console.log("ProductDetail - render");
@@ -14,6 +15,11 @@ const ProductDetail = () => {
     selectedProductIdState
   );
 
+  // State để lưu các thuộc tính đã chọn
+  const [selectedProperties, setSelectedProperties] = useState<Record<string, string>>({});
+  // State để lưu sản phẩm tương ứng sau khi chọn thuộc tính
+  const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
+
   useEffect(() => {
     console.log("ProductDetail - useEffect - id:", id);
     if (id) {
@@ -21,6 +27,34 @@ const ProductDetail = () => {
       setSelectedProductId(id);
     }
   }, [id]);
+
+  // Hàm xử lý khi chọn thuộc tính
+  const handlePropertySelect = (propertyName: string, value: string) => {
+    const newSelectedProperties = {
+      ...selectedProperties,
+      [propertyName]: value
+    };
+    setSelectedProperties(newSelectedProperties);
+
+    // Tìm sản phẩm tương ứng trong classifies
+    if (productDetail?.classifies) {
+      const matchedClassify = productDetail.classifies.find(classify => {
+        return Object.entries(newSelectedProperties).every(([name, val]) => {
+          return classify.property_name === name && classify.property_value === val;
+        });
+      });
+
+      if (matchedClassify) {
+        // Nếu tìm thấy sản phẩm tương ứng, cập nhật state
+        setMatchedProduct({
+          ...productDetail,
+          inventory_item_id: matchedClassify.inventory_item_id
+        });
+      } else {
+        setMatchedProduct(null);
+      }
+    }
+  };
 
   if (!productDetail) {
     console.log("ProductDetail - rendering loading state");
@@ -72,11 +106,27 @@ const ProductDetail = () => {
         {productDetail.properties && productDetail.properties.length > 0 && (
           <div className="mb-4">
             <h2 className="text-lg font-semibold mb-2">Thông số kỹ thuật</h2>
-            <div className="space-y-2">
+            <div className="space-y-4">
               {productDetail.properties.map((property) => (
-                <div key={property.inventory_item_property_id} className="flex justify-between">
-                  <span className="text-gray-600">{property.property_name}:</span>
-                  <span className="font-medium">{property.inventory_item_property_value}</span>
+                <div key={property.inventory_item_property_id}>
+                  <p className="text-gray-600 mb-2">{property.property_name}:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {productDetail.properties
+                      ?.filter(p => p.property_name === property.property_name)
+                      .map((p) => (
+                        <button
+                          key={p.inventory_item_property_id}
+                          className={`px-4 py-2 rounded border ${
+                            selectedProperties[property.property_name] === p.inventory_item_property_value
+                              ? 'bg-primary text-white border-primary'
+                              : 'bg-white border-gray-300'
+                          }`}
+                          onClick={() => handlePropertySelect(property.property_name, p.inventory_item_property_value)}
+                        >
+                          {p.inventory_item_property_value}
+                        </button>
+                      ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -101,17 +151,22 @@ const ProductDetail = () => {
               <p className="text-gray-600">Thương hiệu:</p>
               <p className="font-medium">{productDetail.brand_name}</p>
             </div>
-            {/* <div>
-              <p className="text-gray-600">Tình trạng:</p>
-              <p className="font-medium">
-                {productDetail.instock > 0 ? "Còn hàng" : "Hết hàng"}
-              </p>
-            </div> */}
           </div>
         </div>
+
+        {/* Hiển thị thông báo khi tìm thấy sản phẩm tương ứng */}
+        {matchedProduct && (
+          <div className="mt-4 p-4 bg-green-50 rounded-lg">
+            <p className="text-green-700">Đã tìm thấy sản phẩm tương ứng!</p>
+            <p className="text-sm text-gray-600 mt-2">
+              Mã sản phẩm: {matchedProduct.inventory_item_id}
+            </p>
+          </div>
+        )}
       </div>
     </Page>
   );
 };
 
 export default ProductDetail;
+
