@@ -84,6 +84,7 @@ export interface InventoryItemCategoryResponse {
 
 export interface Classify {
   inventory_item_id: string;
+  inventory_item_name: string;
   property_id: string;
   property_name: string;
   property_value: string;

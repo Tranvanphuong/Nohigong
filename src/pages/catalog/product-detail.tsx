@@ -16,10 +16,11 @@ import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
-import { Color, Size, Product } from "@/types";
+import { Color, Size, Product, Classify } from "@/types";
 import SharePhoneModal from "@/components/SharePhoneModal";
 import { services } from "@/services/services";
 import { Icon } from "zmp-ui";
+import BuyNowButton from "@/components/BuyNowButton";
 
 export default function ProductDetailPage() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -217,15 +218,17 @@ export default function ProductDetailPage() {
           >
             <span>Thêm vào giỏ</span>
           </button>
-          <button
-            onClick={() => {
-              addToCart(1);
-              navigate("/cart");
-            }}
-            className="w-[190px] px-4 py-2 bg-primary text-white rounded-lg"
-          >
-            Mua ngay
-          </button>
+          <div className="w-[190px]">
+            <BuyNowButton 
+              product={product}
+              onBuyNow={(variant?: Classify) => {
+                // Thêm vào giỏ hàng trước
+                addToCart(1);
+                // Sau đó chuyển đến trang giỏ hàng
+                navigate("/cart");
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
