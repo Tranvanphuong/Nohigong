@@ -32,7 +32,7 @@ export interface Product {
     modified_by: string;
     modified_date: string;
   }[];
-  classifies?: Classify[];
+  classifies?: Product[];
   sku_code?: string;
   brand_name?: string;
   instock?: number;
@@ -82,29 +82,29 @@ export interface InventoryItemCategoryResponse {
   Empty: boolean;
 }
 
-export interface Classify {
-  inventory_item_id: string;
-  inventory_item_name: string;
-  property_id: string;
-  property_name: string;
-  property_value: string;
-  sort_order: number;
-  created_date: string;
-  modified_by: string;
-  modified_date: string;
-  properties?: {
-    inventory_item_property_id: string;
-    inventory_item_id: string;
-    property_id: string;
-    property_name: string;
-    inventory_item_property_value: string;
-    sort_order: number;
-    attribute_group_type: number;
-    created_date: string;
-    modified_by: string;
-    modified_date: string;
-  }[];
-}
+// export interface Classify {
+//   inventory_item_id: string;
+//   inventory_item_name: string;
+//   property_id: string;
+//   property_name: string;
+//   property_value: string;
+//   sort_order: number;
+//   created_date: string;
+//   modified_by: string;
+//   modified_date: string;
+//   properties?: {
+//     inventory_item_property_id: string;
+//     inventory_item_id: string;
+//     property_id: string;
+//     property_name: string;
+//     inventory_item_property_value: string;
+//     sort_order: number;
+//     attribute_group_type: number;
+//     created_date: string;
+//     modified_by: string;
+//     modified_date: string;
+//   }[];
+// }
 
 export interface Size {
   name: string;

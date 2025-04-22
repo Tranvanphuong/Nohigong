@@ -8,8 +8,9 @@
   height: 48px;
 }
 .cl-primary{
-  background-color: #0923d9;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
+  border: #ccc solid 1px;
 }
 
 .cl-add-cart{
@@ -24,10 +25,15 @@
 .button-select-product{
   border-radius: 4px;
     justify-content: center;
-    color: #fff;
-    background-color: #0923d9;
+    border: #3459a7 solid 1px;
+    padding: 8px;
 }
-
+.currency-product{
+  color: #ed6703;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 30px;
+}
 :root {
   --primary: #3459a7;
   --secondary: #ebedef;

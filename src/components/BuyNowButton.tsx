@@ -36,7 +36,7 @@ const BuyNowButton: React.FC<BuyNowButtonProps> = ({ product, onBuyNow }) => {
       <Button
         fullWidth
         onClick={handleBuyNow}
-        className="border-radius-4 cl-primary "
+        className="border-radius-4 bg-primary "
       >
         Mua ngay
       </Button>

@@ -8,6 +8,9 @@ export interface Product {
   color?: string;
   size?: string;
   description?: string;
+  images?: {
+    file_name: string | null;
+  }[];
   properties?: {
     inventory_item_property_id: string;
     inventory_item_id: string;

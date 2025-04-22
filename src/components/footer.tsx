@@ -45,7 +45,7 @@ export default function Footer() {
     <>
       <HorizontalDivider />
       <div
-        className="w-full px-4 pt-2 grid"
+        className="w-full px-4 pt-2 grid bg-white relative"
         style={{
           gridTemplateColumns: `repeat(${NAV_ITEMS.length}, 1fr)`,
           paddingBottom: `max(16px, env(safe-area-inset-bottom)`,

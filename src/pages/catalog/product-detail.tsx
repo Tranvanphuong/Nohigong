@@ -16,11 +16,12 @@ import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
-import { Color, Size, Product, Classify } from "@/types";
+import { Color, Size, Product } from "@/types";
 import SharePhoneModal from "@/components/SharePhoneModal";
 import { services } from "@/services/services";
 import { Icon } from "zmp-ui";
 import BuyNowButton from "@/components/BuyNowButton";
+import Carousel from "@/components/carousel";
 
 export default function ProductDetailPage() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -56,7 +57,7 @@ export default function ProductDetailPage() {
   // State để lưu sản phẩm tương ứng sau khi chọn thuộc tính
   const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
   // State để lưu sản phẩm biến thể được chọn
-  const [selectedVariant, setSelectedVariant] = useState<Classify | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<Product | null>(null);
   // State để lưu sản phẩm đã cập nhật với thông tin variant
   const [currentProduct, setCurrentProduct] = useState(product);
 
@@ -69,7 +70,7 @@ export default function ProductDetailPage() {
 
   // Hàm xử lý thêm sản phẩm biến thể vào giỏ hàng
   const handleAddVariantToCart = useCallback(
-    (variant: Classify) => {
+    (variant: Product) => {
       // Tạo sản phẩm mới với thông tin biến thể
       const productWithVariant = {
         ...product,
@@ -104,35 +105,35 @@ export default function ProductDetailPage() {
   }, [selectedSize, selectedColor]);
 
   // Hàm xử lý khi chọn thuộc tính
-  const handlePropertySelect = (propertyName: string, value: string) => {
-    const newSelectedProperties = {
-      ...selectedProperties,
-      [propertyName]: value,
-    };
-    setSelectedProperties(newSelectedProperties);
+  // const handlePropertySelect = (propertyName: string, value: string) => {
+  //   const newSelectedProperties = {
+  //     ...selectedProperties,
+  //     [propertyName]: value,
+  //   };
+  //   setSelectedProperties(newSelectedProperties);
 
-    // Tìm sản phẩm tương ứng trong classifies
-    if (product?.classifies) {
-      const matchedClassify = product.classifies.find((classify) => {
-        return Object.entries(newSelectedProperties).every(([name, val]) => {
-          // Lấy giá trị thuộc tính từ classifies.properties[0].inventory_item_property_value
-          const propertyValue =
-            classify.properties?.[0]?.inventory_item_property_value;
-          return classify.property_name === name && propertyValue === val;
-        });
-      });
+  //   // Tìm sản phẩm tương ứng trong classifies
+  //   if (product?.classifies) {
+  //     const matchedClassify = product.classifies.find((classify) => {
+  //       return Object.entries(newSelectedProperties).every(([name, val]) => {
+  //         // Lấy giá trị thuộc tính từ classifies.properties[0].inventory_item_property_value
+  //         const propertyValue =
+  //           classify.properties?.[0]?.inventory_item_property_value;
+  //         return classify.property_name === name && propertyValue === val;
+  //       });
+  //     });
 
-      if (matchedClassify) {
-        // Nếu tìm thấy sản phẩm tương ứng, cập nhật state
-        setMatchedProduct({
-          ...product,
-          inventory_item_id: matchedClassify.inventory_item_id,
-        });
-      } else {
-        setMatchedProduct(null);
-      }
-    }
-  };
+  //     if (matchedClassify) {
+  //       // Nếu tìm thấy sản phẩm tương ứng, cập nhật state
+  //       setMatchedProduct({
+  //         ...product,
+  //         inventory_item_id: matchedClassify.inventory_item_id,
+  //       });
+  //     } else {
+  //       setMatchedProduct(null);
+  //     }
+  //   }
+  // };
 
   const handleAddToCart = async () => {
     console.log("1. Bắt đầu xử lý click button");
@@ -151,7 +152,7 @@ export default function ProductDetailPage() {
 
   // Hàm xử lý mua ngay
   const handleBuyNow = useCallback(
-    (variant?: Classify) => {
+    (variant?: Product) => {
       if (variant) {
         // Nếu có phiên bản được chọn, thêm sản phẩm biến thể vào giỏ hàng
         handleAddVariantToCart(variant);
@@ -173,10 +174,24 @@ export default function ProductDetailPage() {
   return (
     <div className="flex flex-col h-full pb-[60px] relative">
       <div className="flex-1 overflow-y-auto">
-        <img
-          src={getImageUrl(product.file_name || "")}
-          className="w-full aspect-square object-cover"
-          alt={product.inventory_item_name}
+        <Carousel
+          slides={
+            (product as any).resources && (product as any).resources.length > 0
+              ? (product as any).resources.map((image: any) => (
+                  <img
+                    src={getImageUrl(image.file_name || "")}
+                    className="w-full aspect-square object-cover"
+                    alt={product.inventory_item_name}
+                  />
+                ))
+              : [
+                  <img
+                    src={getImageUrl(product.file_name || "")}
+                    className="w-full aspect-square object-cover"
+                    alt={product.inventory_item_name}
+                  />,
+                ]
+          }
         />
         <div className="p-4 space-y-4">
           <div className="space-y-1">
@@ -289,7 +304,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Fixed bottom buttons */}
-      <div className="fixed bottom-95 left-0 right-0 bg-white border-t border-gray-200">
+      <div className="fixed bottom-95 left-0 right-0 bg-white border-t border-gray-200 z-10">
         <div className="flex items-center justify-center p-2 gap-4">
           <button
             onClick={handleAddToCart}

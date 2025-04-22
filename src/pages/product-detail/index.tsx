@@ -3,7 +3,7 @@ import { productDetailState, selectedProductIdState } from "@/state";
 import { Page } from "zmp-ui";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Classify, Product } from "@/types";
+import { Product } from "@/types";
 
 const ProductDetail = () => {
   console.log("ProductDetail - render");
@@ -29,32 +29,32 @@ const ProductDetail = () => {
   }, [id]);
 
   // Hàm xử lý khi chọn thuộc tính
-  const handlePropertySelect = (propertyName: string, value: string) => {
-    const newSelectedProperties = {
-      ...selectedProperties,
-      [propertyName]: value
-    };
-    setSelectedProperties(newSelectedProperties);
+  // const handlePropertySelect = (propertyName: string, value: string) => {
+  //   const newSelectedProperties = {
+  //     ...selectedProperties,
+  //     [propertyName]: value
+  //   };
+  //   setSelectedProperties(newSelectedProperties);
 
-    // Tìm sản phẩm tương ứng trong classifies
-    if (productDetail?.classifies) {
-      const matchedClassify = productDetail.classifies.find(classify => {
-        return Object.entries(newSelectedProperties).every(([name, val]) => {
-          return classify.property_name === name && classify.property_value === val;
-        });
-      });
+  //   // Tìm sản phẩm tương ứng trong classifies
+  //   if (productDetail?.classifies) {
+  //     const matchedClassify = productDetail.classifies.find(classify => {
+  //       return Object.entries(newSelectedProperties).every(([name, val]) => {
+  //         return classify.property_name === name && classify.property_value === val;
+  //       });
+  //     });
 
-      if (matchedClassify) {
-        // Nếu tìm thấy sản phẩm tương ứng, cập nhật state
-        setMatchedProduct({
-          ...productDetail,
-          inventory_item_id: matchedClassify.inventory_item_id
-        });
-      } else {
-        setMatchedProduct(null);
-      }
-    }
-  };
+  //     if (matchedClassify) {
+  //       // Nếu tìm thấy sản phẩm tương ứng, cập nhật state
+  //       setMatchedProduct({
+  //         ...productDetail,
+  //         inventory_item_id: matchedClassify.inventory_item_id
+  //       });
+  //     } else {
+  //       setMatchedProduct(null);
+  //     }
+  //   }
+  // };
 
   if (!productDetail) {
     console.log("ProductDetail - rendering loading state");
@@ -103,7 +103,7 @@ const ProductDetail = () => {
         )}
 
         {/* Thuộc tính sản phẩm */}
-        {productDetail.properties && productDetail.properties.length > 0 && (
+        {/* {productDetail.properties && productDetail.properties.length > 0 && (
           <div className="mb-4">
             <h2 className="text-lg font-semibold mb-2">Thông số kỹ thuật</h2>
             <div className="space-y-4">
@@ -131,7 +131,7 @@ const ProductDetail = () => {
               ))}
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Thông tin sản phẩm */}
         <div className="mb-4">
