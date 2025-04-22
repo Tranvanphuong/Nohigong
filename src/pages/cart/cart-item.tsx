@@ -1,7 +1,7 @@
 import Checkbox from "@/components/checkbox";
 import QuantityInput from "@/components/quantity-input";
 import { useAddToCart } from "@/hooks";
-import { CartItem as CartItemProps } from "@/types";
+import { CartItem as CartItemProps } from "@/types/index";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
@@ -96,9 +96,19 @@ export default function CartItem(props: CartItemProps) {
         />
         <div className="py-4 pr-4 flex-1 border-b-[0.5px] border-black/10">
           <div className="text-sm">{props.product.inventory_item_name}</div>
+
+          {/* Hiển thị thông tin phiên bản */}
+          {props.variant && (
+            <div className="text-xs text-green-600 mt-0.5 font-medium">
+              Phiên bản: {props.variant.inventory_item_name}
+            </div>
+          )}
+
+          {/* Hiển thị các thuộc tính khác */}
           {displayOptions && (
             <div className="text-xs text-subtitle mt-0.5">{displayOptions}</div>
           )}
+
           <div className="flex items-center py-2 space-x-2">
             <div className="flex-1 flex flex-wrap items-center space-x-0.5">
               <div className="text-xs font-medium text-primary">

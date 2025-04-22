@@ -15,6 +15,13 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
   onClose,
   onSelect,
 }) => {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
+
   return (
     <Sheet
       visible={visible}
@@ -29,7 +36,7 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
         </Text.Title>
 
         <Box className="space-y-2">
-          {product.classifies?.map((variant, index, array) => (
+          {product.classifies?.map((variant, index) => (
             <Button
               key={index}
               variant="secondary"
@@ -37,12 +44,18 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
               onClick={() => onSelect(variant)}
               className="flex justify-between items-center"
             >
-              <Text>{array[index]?.inventory_item_name}</Text>
+              <div className="flex flex-col items-start">
+                <Text className="font-medium">
+                  {variant.inventory_item_name}
+                </Text>
+                {variant.property_name && (
+                  <Text className="text-xs text-gray-500">
+                    {variant.property_name}: {variant.property_value}
+                  </Text>
+                )}
+              </div>
               <Text className="text-primary">
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(product.unit_price)}
+                {formatPrice(product.unit_price)}
               </Text>
             </Button>
           ))}

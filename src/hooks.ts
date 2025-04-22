@@ -116,6 +116,8 @@ export function useAddToCart(product: any, editingCartItemId?: number) {
         product,
         options,
         quantity,
+        // Lưu thông tin về phiên bản sản phẩm nếu có
+        variant: product.variant || null,
       });
     }
   }

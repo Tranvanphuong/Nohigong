@@ -142,6 +142,8 @@ project/
 │   │   ├── header.tsx         # Component header
 │   │   ├── product-item.tsx   # Component hiển thị sản phẩm
 │   │   ├── product-grid.tsx   # Grid hiển thị nhiều sản phẩm
+│   │   ├── BuyNowButton.tsx   # Nút mua ngay với lựa chọn phiên bản
+│   │   ├── ProductVariantSelector.tsx # Component chọn phiên bản sản phẩm
 │   │   └── ...                # Các components khác
 │   ├── css/                   # Stylesheet và cấu hình CSS
 │   ├── enums/                 # Các enum được sử dụng trong ứng dụng
@@ -156,7 +158,11 @@ project/
 │   ├── pages/                 # Các trang của ứng dụng
 │   │   ├── address/           # Trang quản lý địa chỉ
 │   │   ├── cart/              # Trang giỏ hàng
+│   │   │   ├── cart-item.tsx  # Component hiển thị sản phẩm trong giỏ hàng
+│   │   │   └── cart-summary.tsx # Component tóm tắt giỏ hàng
 │   │   ├── catalog/           # Trang danh mục sản phẩm
+│   │   │   ├── product-detail.tsx # Trang chi tiết sản phẩm với chọn phiên bản
+│   │   │   └── variant-picker.tsx # Component chọn biến thể sản phẩm
 │   │   ├── checkout/          # Trang thanh toán
 │   │   ├── home/              # Trang chủ
 │   │   ├── orders/            # Trang quản lý đơn hàng
@@ -171,6 +177,7 @@ project/
 │   ├── state/                 # Quản lý trạng thái ứng dụng
 │   ├── static/                # Tài nguyên tĩnh (hình ảnh, fonts, ...)
 │   ├── types/                 # Định nghĩa TypeScript types
+│   │   └── index.ts           # Định nghĩa các interfaces và types
 │   ├── utils/                 # Các hàm tiện ích
 │   │   ├── auth.ts            # Xác thực người dùng
 │   │   ├── cart.ts            # Xử lý giỏ hàng
@@ -245,3 +252,23 @@ Dữ liệu đơn hàng được định nghĩa trong class `OrderImpl` tại `s
 - `COMPLETED` (50): Hoàn thành
 - `CANCELLED` (60): Đã hủy
 - `RETURNED` (70): Đã trả hàng
+
+## Tính năng chọn phiên bản sản phẩm
+
+Hệ thống hỗ trợ hiển thị và chọn phiên bản sản phẩm:
+
+### 1. Chọn phiên bản khi mua hàng
+
+- Khi nhấn vào nút "Mua ngay", người dùng có thể chọn phiên bản sản phẩm nếu sản phẩm có nhiều phiên bản
+- Phiên bản được chọn sẽ được lưu vào giỏ hàng
+
+### 2. Hiển thị phiên bản trong giỏ hàng
+
+- Thông tin phiên bản sản phẩm đã chọn được hiển thị trong giỏ hàng
+- Giúp người dùng dễ dàng nhận biết các phiên bản sản phẩm khác nhau đã thêm vào giỏ hàng
+
+### 3. Các component liên quan
+
+- `BuyNowButton`: Nút mua ngay với khả năng chọn phiên bản
+- `ProductVariantSelector`: Component hiển thị danh sách phiên bản sản phẩm để người dùng lựa chọn
+- `cart-item`: Hiển thị thông tin phiên bản sản phẩm trong giỏ hàng

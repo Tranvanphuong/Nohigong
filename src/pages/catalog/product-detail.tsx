@@ -11,7 +11,7 @@ import {
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
@@ -55,8 +55,46 @@ export default function ProductDetailPage() {
   >({});
   // State để lưu sản phẩm tương ứng sau khi chọn thuộc tính
   const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
+  // State để lưu sản phẩm biến thể được chọn
+  const [selectedVariant, setSelectedVariant] = useState<Classify | null>(null);
+  // State để lưu sản phẩm đã cập nhật với thông tin variant
+  const [currentProduct, setCurrentProduct] = useState(product);
 
-  const { addToCart, setOptions } = useAddToCart(product);
+  // Cập nhật currentProduct khi product thay đổi
+  useEffect(() => {
+    setCurrentProduct(product);
+  }, [product]);
+
+  const { addToCart, setOptions } = useAddToCart(currentProduct);
+
+  // Hàm xử lý thêm sản phẩm biến thể vào giỏ hàng
+  const handleAddVariantToCart = useCallback(
+    (variant: Classify) => {
+      // Tạo sản phẩm mới với thông tin biến thể
+      const productWithVariant = {
+        ...product,
+        inventory_item_id: variant.inventory_item_id,
+        inventory_item_name: variant.inventory_item_name,
+        // Thêm thông tin variant vào sản phẩm để có thể hiển thị trong giỏ hàng
+        variant: {
+          inventory_item_id: variant.inventory_item_id,
+          inventory_item_name: variant.inventory_item_name,
+        },
+      };
+
+      // Lưu biến thể đã chọn
+      setSelectedVariant(variant);
+
+      // Cập nhật sản phẩm hiện tại với thông tin variant
+      setCurrentProduct(productWithVariant);
+
+      // Thêm sản phẩm vào giỏ hàng sau khi cập nhật state
+      setTimeout(() => {
+        addToCart(1);
+      }, 0);
+    },
+    [product, addToCart]
+  );
 
   useEffect(() => {
     setOptions({
@@ -111,6 +149,27 @@ export default function ProductDetailPage() {
     }
   };
 
+  // Hàm xử lý mua ngay
+  const handleBuyNow = useCallback(
+    (variant?: Classify) => {
+      if (variant) {
+        // Nếu có phiên bản được chọn, thêm sản phẩm biến thể vào giỏ hàng
+        handleAddVariantToCart(variant);
+
+        // Đợi một chút để đảm bảo thông tin sản phẩm được cập nhật trước khi chuyển trang
+        setTimeout(() => {
+          navigate("/cart");
+        }, 100);
+      } else {
+        // Nếu không có phiên bản, thêm sản phẩm gốc
+        addToCart(1);
+        // Chuyển đến trang giỏ hàng
+        navigate("/cart");
+      }
+    },
+    [addToCart, handleAddVariantToCart, navigate]
+  );
+
   return (
     <div className="flex flex-col h-full pb-[60px] relative">
       <div className="flex-1 overflow-y-auto">
@@ -133,6 +192,15 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Hiển thị phiên bản đã chọn */}
+          {selectedVariant && (
+            <div className="p-2 bg-green-50 rounded-md">
+              <p className="text-sm text-green-700">
+                Phiên bản đã chọn: {selectedVariant.inventory_item_name}
+              </p>
+            </div>
+          )}
 
           {/* Mô tả sản phẩm */}
           {product.description && (
@@ -230,15 +298,7 @@ export default function ProductDetailPage() {
             <span>Thêm vào giỏ</span>
           </button>
           <div className="w-[190px]">
-            <BuyNowButton
-              product={product}
-              onBuyNow={(variant?: Classify) => {
-                // Thêm vào giỏ hàng trước
-                addToCart(1);
-                // Sau đó chuyển đến trang giỏ hàng
-                navigate("/cart");
-              }}
-            />
+            <BuyNowButton product={product} onBuyNow={handleBuyNow} />
           </div>
         </div>
       </div>
