@@ -237,6 +237,10 @@ export const services = {
         throw error;
       }
     },
+    getOrderWithDetail: async () => {
+      const response = await externalApi.getOrderWithDetail();
+      return response;
+    },
   },
 
   category: {

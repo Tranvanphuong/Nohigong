@@ -156,7 +156,13 @@ export const getProductDetail = async (id: string) => {
   }
 };
 
-export const getUserNumber = async ({ access_token, code }: { access_token: string; code: string }) => {
+export const getUserNumber = async ({
+  access_token,
+  code,
+}: {
+  access_token: string;
+  code: string;
+}) => {
   const secret_key = "USgLueM6o1xn8VioWvIR";
   try {
     const response = await fetch(`https://graph.zalo.me/v2.0/me/info`, {

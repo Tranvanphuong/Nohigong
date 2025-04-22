@@ -2,7 +2,11 @@ import { Product } from "../types";
 import { formatPrice } from "@/utils/format";
 import { useNavigate } from "react-router-dom";
 import { useSetAtom } from "jotai";
-import { selectedProductIdState, isQuickBuyModalOpenState, quickBuyState } from "@/state";
+import {
+  selectedProductIdState,
+  isQuickBuyModalOpenState,
+  quickBuyState,
+} from "@/state";
 import { services } from "@/services/services";
 
 export interface ProductItemProps {

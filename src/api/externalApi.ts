@@ -1,4 +1,4 @@
-import { Order, OrderDetailImpl } from "@/models/Order";
+import { Order, OrderDetailImpl, OrderImpl } from "@/models/Order";
 import { post, request } from "../utils/request";
 
 const BASE_URL = "https://eshopapp.misa.vn/g2/api";
@@ -50,8 +50,8 @@ export const externalApi = {
   },
 
   getOrderWithDetail: async () => {
-    const response = await post<{ Data: OrderDetailImpl[] }>(
-      "bizmob/MessageOrderMobs/list-with-detail`",
+    const response = await post<{ Data: OrderImpl[] }>(
+      "order/MessageOrders/list-with-detail`",
       {
         skip: 0,
         take: 50,
