@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Button } from 'zmp-ui';
-import { Product, Classify } from '../types';
-import ProductVariantSelector from './ProductVariantSelector';
+import React, { useState } from "react";
+import { Button } from "zmp-ui";
+import { Product, Classify } from "../types";
+import ProductVariantSelector from "./ProductVariantSelector";
 
 interface BuyNowButtonProps {
   product: Product;
@@ -26,12 +26,8 @@ const BuyNowButton: React.FC<BuyNowButtonProps> = ({ product, onBuyNow }) => {
 
   return (
     <>
-      <Button 
-        fullWidth
-        variant="primary"
-        onClick={handleBuyNow}
-      >
-        Mua ngay
+      <Button fullWidth variant="primary" onClick={handleBuyNow}>
+        Mua ngay1
       </Button>
 
       <ProductVariantSelector
@@ -44,4 +40,4 @@ const BuyNowButton: React.FC<BuyNowButtonProps> = ({ product, onBuyNow }) => {
   );
 };
 
-export default BuyNowButton; 
+export default BuyNowButton;

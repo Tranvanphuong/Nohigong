@@ -1,6 +1,6 @@
-import React from 'react';
-import { Product, Classify } from '../types';
-import { Box, Text, Sheet, Button } from 'zmp-ui';
+import React from "react";
+import { Product, Classify } from "../types";
+import { Box, Text, Sheet, Button } from "zmp-ui";
 
 interface ProductVariantSelectorProps {
   product: Product;
@@ -27,9 +27,9 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
         <Text.Title size="small" className="mb-4">
           Chọn phiên bản sản phẩm
         </Text.Title>
-        
+
         <Box className="space-y-2">
-          {product.classifies?.map((variant , index, array ) => (
+          {product.classifies?.map((variant, index, array) => (
             <Button
               key={index}
               variant="secondary"
@@ -39,9 +39,9 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
             >
               <Text>{array[index]?.inventory_item_name}</Text>
               <Text className="text-primary">
-                {new Intl.NumberFormat('vi-VN', {
-                  style: 'currency',
-                  currency: 'VND'
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
                 }).format(product.unit_price)}
               </Text>
             </Button>
@@ -52,4 +52,4 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
   );
 };
 
-export default ProductVariantSelector; 
+export default ProductVariantSelector;

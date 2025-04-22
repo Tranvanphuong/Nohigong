@@ -89,9 +89,9 @@ export default function CartItem(props: CartItemProps) {
             }
           }}
         />
-        <img 
+        <img
           src={`https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${props.product.file_name}`}
-          className="w-14 h-14 rounded-lg" 
+          className="w-14 h-14 rounded-lg"
           alt={props.product.inventory_item_name}
         />
         <div className="py-4 pr-4 flex-1 border-b-[0.5px] border-black/10">

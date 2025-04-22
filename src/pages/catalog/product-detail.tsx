@@ -50,7 +50,9 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<Size>();
   const [showSharePhoneModal, setShowSharePhoneModal] = useState(false);
   // State để lưu các thuộc tính đã chọn
-  const [selectedProperties, setSelectedProperties] = useState<Record<string, string>>({});
+  const [selectedProperties, setSelectedProperties] = useState<
+    Record<string, string>
+  >({});
   // State để lưu sản phẩm tương ứng sau khi chọn thuộc tính
   const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
 
@@ -67,16 +69,17 @@ export default function ProductDetailPage() {
   const handlePropertySelect = (propertyName: string, value: string) => {
     const newSelectedProperties = {
       ...selectedProperties,
-      [propertyName]: value
+      [propertyName]: value,
     };
     setSelectedProperties(newSelectedProperties);
 
     // Tìm sản phẩm tương ứng trong classifies
     if (product?.classifies) {
-      const matchedClassify = product.classifies.find(classify => {
+      const matchedClassify = product.classifies.find((classify) => {
         return Object.entries(newSelectedProperties).every(([name, val]) => {
           // Lấy giá trị thuộc tính từ classifies.properties[0].inventory_item_property_value
-          const propertyValue = classify.properties?.[0]?.inventory_item_property_value;
+          const propertyValue =
+            classify.properties?.[0]?.inventory_item_property_value;
           return classify.property_name === name && propertyValue === val;
         });
       });
@@ -85,7 +88,7 @@ export default function ProductDetailPage() {
         // Nếu tìm thấy sản phẩm tương ứng, cập nhật state
         setMatchedProduct({
           ...product,
-          inventory_item_id: matchedClassify.inventory_item_id
+          inventory_item_id: matchedClassify.inventory_item_id,
         });
       } else {
         setMatchedProduct(null);
@@ -148,19 +151,29 @@ export default function ProductDetailPage() {
               <div className="space-y-4">
                 {product.properties.map((property) => (
                   <div key={property.inventory_item_property_id}>
-                    <p className="text-gray-600 mb-2">{property.property_name}:</p>
+                    <p className="text-gray-600 mb-2">
+                      {property.property_name}:
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {product.properties
-                        ?.filter(p => p.property_name === property.property_name)
+                        ?.filter(
+                          (p) => p.property_name === property.property_name
+                        )
                         .map((p) => (
                           <button
                             key={p.inventory_item_property_id}
                             className={`px-4 py-2 rounded border ${
-                              selectedProperties[property.property_name] === p.inventory_item_property_value
-                                ? 'bg-primary text-white border-primary'
-                                : 'bg-white border-gray-300'
+                              selectedProperties[property.property_name] ===
+                              p.inventory_item_property_value
+                                ? "bg-primary text-white border-primary"
+                                : "bg-white border-gray-300"
                             }`}
-                            onClick={() => handlePropertySelect(property.property_name, p.inventory_item_property_value)}
+                            onClick={() =>
+                              handlePropertySelect(
+                                property.property_name,
+                                p.inventory_item_property_value
+                              )
+                            }
                           >
                             {p.inventory_item_property_value}
                           </button>
@@ -205,21 +218,19 @@ export default function ProductDetailPage() {
         </div>
 
         <HorizontalDivider />
-        
-        
       </div>
 
       {/* Fixed bottom buttons */}
       <div className="fixed bottom-95 left-0 right-0 bg-white border-t border-gray-200">
         <div className="flex items-center justify-center p-2 gap-4">
-          <button 
+          <button
             onClick={handleAddToCart}
             className="w-[190px] flex items-center justify-center gap-1 px-4 py-2 border border-gray-300 rounded-lg"
           >
             <span>Thêm vào giỏ</span>
           </button>
           <div className="w-[190px]">
-            <BuyNowButton 
+            <BuyNowButton
               product={product}
               onBuyNow={(variant?: Classify) => {
                 // Thêm vào giỏ hàng trước
