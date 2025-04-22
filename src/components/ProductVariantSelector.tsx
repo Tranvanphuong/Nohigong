@@ -32,17 +32,17 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
     >
       <Box p={4}>
         <Text.Title size="small" className="mb-4">
-          Chọn phiên bản sản phẩm
+          Chọn sản phẩm
         </Text.Title>
 
-        <Box className="space-y-2">
-          {product.classifies?.map((variant, index) => (
+        <Box className="space-y-2 flex-start">
+          {product.classifies?.map((variant, index, array) => (
             <Button
               key={index}
               variant="secondary"
               fullWidth
               onClick={() => onSelect(variant)}
-              className="flex justify-between items-center"
+              className="flex-box justify-between items-center button-select-product"
             >
               <div className="flex flex-col items-start">
                 <Text className="font-medium">
