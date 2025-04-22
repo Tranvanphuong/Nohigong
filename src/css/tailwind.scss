@@ -1,6 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.bottom-95{
+  bottom: 95px;
+}
 
 :root {
   --primary: #3459a7;

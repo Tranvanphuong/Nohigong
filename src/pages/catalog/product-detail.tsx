@@ -16,9 +16,10 @@ import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
-import { Color, Product } from "@/types";
+import { Color, Size, Product } from "@/types";
 import SharePhoneModal from "@/components/SharePhoneModal";
 import { services } from "@/services/services";
+import { Icon } from "zmp-ui";
 
 export default function ProductDetailPage() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -38,24 +39,58 @@ export default function ProductDetailPage() {
     return services.product.getImageUrl(fileName);
   };
 
-  const productDetail = useAtomValue(productDetailState) as Product | null;
+  const product = useAtomValue(productDetailState) as Product | null;
 
-  if (!productDetail) {
+  if (!product) {
     return <div>Loading...</div>;
   }
 
   const [selectedColor, setSelectedColor] = useState<Color>();
-  // const [selectedSize, setSelectedSize] = useState<Size>();
+  const [selectedSize, setSelectedSize] = useState<Size>();
   const [showSharePhoneModal, setShowSharePhoneModal] = useState(false);
+  // State để lưu các thuộc tính đã chọn
+  const [selectedProperties, setSelectedProperties] = useState<Record<string, string>>({});
+  // State để lưu sản phẩm tương ứng sau khi chọn thuộc tính
+  const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
 
-  const { addToCart, setOptions } = useAddToCart(productDetail);
+  const { addToCart, setOptions } = useAddToCart(product);
 
-  // useEffect(() => {
-  //   setOptions({
-  //     size: selectedSize,
-  //     color: selectedColor?.name,
-  //   });
-  // }, [selectedSize, selectedColor]);
+  useEffect(() => {
+    setOptions({
+      size: selectedSize,
+      color: selectedColor?.name,
+    });
+  }, [selectedSize, selectedColor]);
+
+  // Hàm xử lý khi chọn thuộc tính
+  const handlePropertySelect = (propertyName: string, value: string) => {
+    const newSelectedProperties = {
+      ...selectedProperties,
+      [propertyName]: value
+    };
+    setSelectedProperties(newSelectedProperties);
+
+    // Tìm sản phẩm tương ứng trong classifies
+    if (product?.classifies) {
+      const matchedClassify = product.classifies.find(classify => {
+        return Object.entries(newSelectedProperties).every(([name, val]) => {
+          // Lấy giá trị thuộc tính từ classifies.properties[0].inventory_item_property_value
+          const propertyValue = classify.properties?.[0]?.inventory_item_property_value;
+          return classify.property_name === name && propertyValue === val;
+        });
+      });
+
+      if (matchedClassify) {
+        // Nếu tìm thấy sản phẩm tương ứng, cập nhật state
+        setMatchedProduct({
+          ...product,
+          inventory_item_id: matchedClassify.inventory_item_id
+        });
+      } else {
+        setMatchedProduct(null);
+      }
+    }
+  };
 
   const handleAddToCart = async () => {
     console.log("1. Bắt đầu xử lý click button");
@@ -73,89 +108,126 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-     <div className="p-4">
+    <div className="flex flex-col h-full pb-[60px] relative">
+      <div className="flex-1 overflow-y-auto">
         <img
-          src={getImageUrl(productDetail.file_name)}
-          alt={productDetail.inventory_item_name}
-          className="w-full h-64 object-cover rounded-lg mb-4"
+          src={getImageUrl(product.file_name || "")}
+          className="w-full aspect-square object-cover"
+          alt={product.inventory_item_name}
         />
-        <h1 className="text-2xl font-bold mb-2">
-          {productDetail.inventory_item_name}
-        </h1>
-        <div className="text-xl font-semibold text-primary mb-4">
-          {productDetail.unit_price.toLocaleString("vi-VN")}đ
-        </div>
-
-        {/* Mô tả sản phẩm */}
-        {productDetail.description && (
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold mb-2">Mô tả sản phẩm</h2>
-            <p className="text-gray-600 whitespace-pre-line">
-              {productDetail.description}
-            </p>
-          </div>
-        )}
-
-        {/* Thuộc tính sản phẩm */}
-        {productDetail.properties && productDetail.properties.length > 0 && (
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold mb-2">Thông số kỹ thuật</h2>
-            <div className="space-y-2">
-              {productDetail.properties.map((property) => (
-                <div key={property.inventory_item_property_id} className="flex justify-between">
-                  <span className="text-gray-600">{property.property_name}:</span>
-                  <span className="font-medium">{property.inventory_item_property_value}</span>
-                </div>
-              ))}
+        <div className="p-4 space-y-4">
+          <div className="space-y-1">
+            <div className="text-3xs text-subtitle">
+              {product.inventory_item_category_name}
+            </div>
+            <div className="text-lg font-medium">
+              {product.inventory_item_name}
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="text-sm font-medium text-primary">
+                {formatPrice(product.unit_price)}
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Thông tin sản phẩm */}
-        <div className="mb-4">
-          <h2 className="text-lg font-semibold mb-2">Thông tin sản phẩm</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-gray-600">Mã sản phẩm:</p>
-              <p className="font-medium">{productDetail.sku_code}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Danh mục:</p>
-              <p className="font-medium">
-                {productDetail.inventory_item_category_name}
+          {/* Mô tả sản phẩm */}
+          {product.description && (
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold mb-2">Mô tả sản phẩm</h2>
+              <p className="text-gray-600 whitespace-pre-line">
+                {product.description}
               </p>
             </div>
-            <div>
-              <p className="text-gray-600">Thương hiệu:</p>
-              <p className="font-medium">{productDetail.brand_name}</p>
+          )}
+
+          {/* Thuộc tính sản phẩm */}
+          {product.properties && product.properties.length > 0 && (
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold mb-2">Thông số kỹ thuật</h2>
+              <div className="space-y-4">
+                {product.properties.map((property) => (
+                  <div key={property.inventory_item_property_id}>
+                    <p className="text-gray-600 mb-2">{property.property_name}:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {product.properties
+                        ?.filter(p => p.property_name === property.property_name)
+                        .map((p) => (
+                          <button
+                            key={p.inventory_item_property_id}
+                            className={`px-4 py-2 rounded border ${
+                              selectedProperties[property.property_name] === p.inventory_item_property_value
+                                ? 'bg-primary text-white border-primary'
+                                : 'bg-white border-gray-300'
+                            }`}
+                            onClick={() => handlePropertySelect(property.property_name, p.inventory_item_property_value)}
+                          >
+                            {p.inventory_item_property_value}
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            {/* <div>
-              <p className="text-gray-600">Tình trạng:</p>
-              <p className="font-medium">
-                {productDetail.instock > 0 ? "Còn hàng" : "Hết hàng"}
+          )}
+
+          {/* Hiển thị thông báo khi tìm thấy sản phẩm tương ứng */}
+          {matchedProduct && (
+            <div className="mt-4 p-4 bg-green-50 rounded-lg">
+              <p className="text-green-700">Đã tìm thấy sản phẩm tương ứng!</p>
+              <p className="text-sm text-gray-600 mt-2">
+                Mã sản phẩm: {matchedProduct.inventory_item_id}
               </p>
-            </div> */}
+            </div>
+          )}
+
+          {/* Thông tin sản phẩm */}
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold mb-2">Thông tin sản phẩm</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-600">Mã sản phẩm:</p>
+                <p className="font-medium">{product.sku_code}</p>
+              </div>
+              <div>
+                <p className="text-gray-600">Danh mục:</p>
+                <p className="font-medium">
+                  {product.inventory_item_category_name}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-600">Thương hiệu:</p>
+                <p className="font-medium">{product.brand_name}</p>
+              </div>
+            </div>
           </div>
         </div>
+
         <HorizontalDivider />
-        <div className="flex-none grid grid-cols-2 gap-2 py-3 px-4">
-          <Button large onClick={handleAddToCart}>
-            Thêm vào giỏ
-          </Button>
-          <Button
-            large
-            primary
+        
+        
+      </div>
+
+      {/* Fixed bottom buttons */}
+      <div className="fixed bottom-95 left-0 right-0 bg-white border-t border-gray-200">
+        <div className="flex items-center justify-center p-2 gap-4">
+          <button 
+            onClick={handleAddToCart}
+            className="w-[190px] flex items-center justify-center gap-1 px-4 py-2 border border-gray-300 rounded-lg"
+          >
+            <span>Thêm vào giỏ</span>
+          </button>
+          <button
             onClick={() => {
               addToCart(1);
               navigate("/cart");
             }}
+            className="w-[190px] px-4 py-2 bg-primary text-white rounded-lg"
           >
             Mua ngay
-          </Button>
+          </button>
         </div>
       </div>
-
     </div>
   );
 }
