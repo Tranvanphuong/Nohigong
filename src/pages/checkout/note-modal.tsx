@@ -30,21 +30,21 @@ export default function NoteModal({
       handler
       swipeToClose
     >
-      <div className="p-4 pb-8">
-        <div className="text-lg font-medium">{title}</div>
-        <div className="mt-4">
+      <div className="p-3 pb-6">
+        <div className="text-base font-medium">{title}</div>
+        <div className="mt-3">
           <Input
             placeholder={placeholder}
             clearable={true}
             maxLength={1000}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full rounded-lg border-gray-200 min-h-[120px]"
+            className="w-full rounded-lg border-gray-200 min-h-[100px]"
           />
         </div>
-        <div className="mt-6">
+        <div className="mt-4">
           <Button
-            className="w-full bg-primary text-white rounded-lg py-3"
+            className="w-full bg-primary text-white rounded-lg py-2 text-sm"
             onClick={handleSave}
           >
             Lưu

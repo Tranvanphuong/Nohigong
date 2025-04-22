@@ -191,31 +191,31 @@ export default function CheckoutPage() {
     <Page className="flex flex-col min-h-screen bg-gray-50">
       <div className="flex-1 overflow-auto">
         {/* Địa chỉ nhận hàng */}
-        <Box className="rounded-none border-b bg-white mb-2">
+        <Box className="rounded-none border-b bg-white mb-1">
           <div
-            className="p-4 cursor-pointer"
+            className="px-3 py-2 cursor-pointer"
             onClick={() =>
               navigate("/address", { state: { from: "checkout" } })
             }
           >
-            <div className="font-medium mb-4 text-gray-800">
+            <div className="font-medium mb-2 text-gray-800">
               Địa chỉ nhận hàng
             </div>
             {selectedAddress ? (
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <div className="font-medium text-gray-800">
                   {selectedAddress.fullName}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-xs text-gray-500">
                   {selectedAddress.phone}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-xs text-gray-500">
                   {selectedAddress.address}
                 </div>
               </div>
             ) : (
               <div className="flex items-center space-x-2 text-primary">
-                <span className="text-2xl">+</span>
+                <span className="text-xl">+</span>
                 <span>Thêm địa chỉ nhận hàng</span>
               </div>
             )}
@@ -223,25 +223,25 @@ export default function CheckoutPage() {
         </Box>
 
         {/* Sản phẩm đã chọn */}
-        <Box className="rounded-none bg-white mb-2">
-          <div className="p-4">
-            <div className="font-medium mb-3 text-gray-800">
+        <Box className="rounded-none bg-white mb-1">
+          <div className="px-3 py-2">
+            <div className="font-medium mb-2 text-gray-800">
               Sản phẩm đã chọn ({totalItems})
             </div>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {/* Danh sách sản phẩm */}
               {cartItems.map((item) => (
-                <div key={item.id} className="flex space-x-3">
+                <div key={item.id} className="flex space-x-2">
                   <img
                     src={services.product.getImageUrl(item.product.file_name)}
-                    className="w-20 h-20 rounded-lg object-cover flex-none"
+                    className="w-16 h-16 rounded-lg object-cover flex-none"
                     alt={item.product.inventory_item_name}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium line-clamp-2 text-gray-800">
                       {item.product.inventory_item_name}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-gray-500 mt-0.5">
                       {item.options?.size && (
                         <span>Size: {item.options.size}</span>
                       )}
@@ -249,7 +249,7 @@ export default function CheckoutPage() {
                         <span className="ml-2">Màu: {item.options.color}</span>
                       )}
                     </div>
-                    <div className="flex justify-between items-center mt-2">
+                    <div className="flex justify-between items-center mt-1">
                       <div className="text-sm text-primary font-medium">
                         {formatPrice(item.product.unit_price)}
                       </div>
@@ -265,18 +265,18 @@ export default function CheckoutPage() {
         </Box>
 
         {/* Mã giảm giá */}
-        <Box className="rounded-none bg-white mb-2">
-          <div className="p-4">
-            <div className="font-medium mb-3 text-gray-800">Mã giảm giá</div>
+        <Box className="rounded-none bg-white mb-1">
+          <div className="px-3 py-2">
+            <div className="font-medium mb-2 text-gray-800">Mã giảm giá</div>
             <div className="flex space-x-2 items-center">
               <Input
-                className="flex-1"
+                className="flex-1 h-9"
                 placeholder="Nhập mã ưu đãi"
                 value={voucher}
                 onChange={(e) => setVoucher(e.target.value)}
               />
               <Button
-                className="flex-none px-4 bg-primary text-white rounded-lg"
+                className="flex-none px-3 py-1 bg-primary text-white rounded-lg"
                 disabled={!voucher}
               >
                 Áp dụng
@@ -286,24 +286,24 @@ export default function CheckoutPage() {
         </Box>
 
         {/* Ghi chú */}
-        <Box className="rounded-none bg-white mb-2">
-          <div className="p-4 space-y-4">
+        <Box className="rounded-none bg-white mb-1">
+          <div className="px-3 py-2 space-y-2">
             <div className="font-medium text-gray-800">Ghi chú</div>
 
             <div
-              className="flex justify-between items-center py-3 border-b border-gray-100 cursor-pointer"
+              className="flex justify-between items-center py-2 border-b border-gray-100 cursor-pointer"
               onClick={() => openNoteModal("seller")}
             >
               <div className="flex items-center text-gray-800">
-                <span className="min-w-[120px]">Người bán:</span>
-                <span className="text-gray-600 flex-1 truncate">
+                <span className="min-w-[100px] text-sm">Người bán:</span>
+                <span className="text-sm text-gray-600 flex-1 truncate">
                   {notes.seller ? notes.seller : "Thêm ghi chú"}
                 </span>
               </div>
               <div className="text-gray-400 flex-shrink-0 ml-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-4 w-4"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -345,14 +345,14 @@ export default function CheckoutPage() {
         </Box>
 
         {/* Phương thức thanh toán */}
-        <Box className="rounded-none bg-white mb-2">
-          <div className="p-4">
-            <div className="font-medium mb-3 text-gray-800">
+        <Box className="rounded-none bg-white mb-1">
+          <div className="px-3 py-2">
+            <div className="font-medium mb-2 text-gray-800">
               Phương thức thanh toán
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div
-                className={`flex items-center justify-between p-3 border rounded-lg ${
+                className={`flex items-center justify-between p-2 border rounded-lg ${
                   paymentMethod === "cod" ? "border-primary" : "border-gray-200"
                 }`}
                 onClick={() => setPaymentMethod("cod")}
@@ -364,14 +364,14 @@ export default function CheckoutPage() {
                     checked={paymentMethod === "cod"}
                     onChange={() => setPaymentMethod("cod")}
                   />
-                  <span className="ml-2 text-gray-800">
+                  <span className="ml-2 text-sm text-gray-800">
                     Thanh toán khi nhận hàng
                   </span>
                 </div>
               </div>
 
               <div
-                className={`flex items-center justify-between p-3 border rounded-lg ${
+                className={`flex items-center justify-between p-2 border rounded-lg ${
                   paymentMethod === "bank_transfer"
                     ? "border-primary"
                     : "border-gray-200"
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
                     checked={paymentMethod === "bank_transfer"}
                     onChange={() => setPaymentMethod("bank_transfer")}
                   />
-                  <span className="ml-2 text-gray-800">Chuyển khoản</span>
+                  <span className="ml-2 text-sm text-gray-800">Chuyển khoản</span>
                 </div>
               </div>
             </div>
@@ -394,19 +394,19 @@ export default function CheckoutPage() {
 
         {/* Tổng tiền */}
         <Box className="rounded-none bg-white">
-          <div className="p-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
+          <div className="px-3 py-2">
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Tạm tính:</span>
                 <span className="text-gray-800">
                   {formatPrice(totalAmount)}
                 </span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Phí vận chuyển:</span>
                 <span className="text-gray-800">0 đ</span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs">
                 <span className="text-gray-500">Giảm giá:</span>
                 <span className="text-primary">0 đ</span>
               </div>
@@ -416,15 +416,15 @@ export default function CheckoutPage() {
       </div>
 
       {/* Tổng thanh toán và nút đặt hàng */}
-      <div className="flex-none bg-white border-t px-4 py-3 space-y-2">
+      <div className="flex-none bg-white border-t px-3 py-2 space-y-1">
         <div className="flex justify-between items-center">
-          <span className="text-gray-500">Tổng thanh toán:</span>
-          <span className="text-xl font-medium text-primary">
+          <span className="text-sm text-gray-500">Tổng thanh toán:</span>
+          <span className="text-lg font-medium text-primary">
             {formatPrice(totalAmount)}
           </span>
         </div>
         <Button
-          className="w-full bg-primary text-white rounded-lg py-3"
+          className="w-full bg-primary text-white rounded-lg py-2"
           onClick={handlePlaceOrder}
           disabled={!selectedAddress || isProcessing}
         >

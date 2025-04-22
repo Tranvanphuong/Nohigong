@@ -37,15 +37,16 @@ export default function AddAddressModal({
       visible={visible}
       onClose={onClose}
       title="Thêm địa chỉ mới"
-      modalClassName="h-4/5"
+      modalClassName="h-3/4"
     >
-      <div className="p-4 space-y-4">
+      <div className="p-3 space-y-3">
         <Input
           label="Họ và tên"
           type="text"
           placeholder="Nhập họ và tên người nhận"
           value={form.fullName}
           onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+          className="text-sm"
         />
         <Input
           label="Số điện thoại"
@@ -53,6 +54,7 @@ export default function AddAddressModal({
           placeholder="Nhập số điện thoại"
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          className="text-sm"
         />
         <Input.TextArea
           label="Địa chỉ"
@@ -60,10 +62,11 @@ export default function AddAddressModal({
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
           rows={3}
+          className="text-sm"
         />
         <Button
           primary
-          className="w-full mt-4"
+          className="w-full mt-3 py-2 text-sm"
           onClick={handleSubmit}
           disabled={!form.fullName || !form.phone || !form.address}
         >
