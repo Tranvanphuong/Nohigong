@@ -25,7 +25,7 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
     >
       <Box p={4}>
         <Text.Title size="small" className="mb-4">
-          Chọn phiên bản sản phẩm
+          Chọn sản phẩm
         </Text.Title>
         
         <Box className="space-y-2 flex-start">

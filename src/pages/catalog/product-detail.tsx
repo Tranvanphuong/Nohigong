@@ -142,7 +142,7 @@ export default function ProductDetailPage() {
           )}
 
           {/* Thuộc tính sản phẩm */}
-          {product.properties && product.properties.length > 0 && (
+          {/* {product.properties && product.properties.length > 0 && (
             <div className="mb-4">
               <h2 className="text-lg font-semibold mb-2">Thông số kỹ thuật</h2>
               <div className="space-y-4">
@@ -170,7 +170,7 @@ export default function ProductDetailPage() {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Hiển thị thông báo khi tìm thấy sản phẩm tương ứng */}
           {matchedProduct && (
