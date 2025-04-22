@@ -214,7 +214,7 @@ export default function ProductDetailPage() {
         <div className="flex items-center justify-center p-2 gap-4">
           <button 
             onClick={handleAddToCart}
-            className="w-[190px] flex items-center justify-center gap-1 px-4 py-2 border border-gray-300 rounded-lg"
+            className="w-[190px] flex items-center justify-center gap-1 px-4 py-2 border border-gray-300 rounded-lg cl-add-car border-radius-4 h-48"
           >
             <span>Thêm vào giỏ</span>
           </button>

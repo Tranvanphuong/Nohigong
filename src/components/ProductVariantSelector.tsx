@@ -28,22 +28,22 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
           Chọn phiên bản sản phẩm
         </Text.Title>
         
-        <Box className="space-y-2">
+        <Box className="space-y-2 flex-start">
           {product.classifies?.map((variant , index, array ) => (
             <Button
               key={index}
               variant="secondary"
               fullWidth
               onClick={() => onSelect(variant)}
-              className="flex justify-between items-center"
+              className="flex-box justify-between items-center button-select-product"
             >
               <Text>{array[index]?.inventory_item_name}</Text>
-              <Text className="text-primary">
+              {/* <Text className="text-primary">
                 {new Intl.NumberFormat('vi-VN', {
                   style: 'currency',
                   currency: 'VND'
                 }).format(product.unit_price)}
-              </Text>
+              </Text> */}
             </Button>
           ))}
         </Box>
