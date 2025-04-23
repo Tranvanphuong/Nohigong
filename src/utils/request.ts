@@ -97,7 +97,6 @@ export async function post<T, D = any>(
     body: JSON.stringify(data),
   };
   logCurlFromFetch(url, optionsFetch);
-  console.log(url);
   const response = await fetch(url, {
     method: "POST",
     headers,
@@ -130,11 +129,9 @@ function logCurlFromFetch(url: string, options: RequestInit = {}) {
     curl.push(`-d '${body}'`);
   }
 
-  console.log("[CURL]", curl.join(" \\\n  "));
 }
 
 export const getProductDetail = async (id: string) => {
-  console.log("getProductDetail called with id:", id);
   try {
     const response = await fetch(
       `https://eshopapp.misa.vn/g2/api/dimob/InventoryItems/edit/${id}`,
@@ -146,9 +143,7 @@ export const getProductDetail = async (id: string) => {
         },
       }
     );
-    console.log("API response status:", response.status);
     const data = await response.json();
-    console.log("API response data:", data);
     return data;
   } catch (error) {
     console.error("Error in getProductDetail:", error);
@@ -172,9 +167,7 @@ export const getUserNumber = async ({
         secret_key: secret_key,
       },
     });
-    console.log(response);
     const data = await response.json();
-    console.log("API response data:", data);
     return data;
   } catch (error) {
     console.error("Error in getProductDetail:", error);

@@ -20,7 +20,6 @@ export default function QuickBuyModal() {
 
   const handleSubmit = useCallback(() => {
     // TODO: Xử lý đặt hàng
-    console.log("Đặt hàng:", quickBuy);
     handleClose();
   }, [quickBuy, handleClose]);
 

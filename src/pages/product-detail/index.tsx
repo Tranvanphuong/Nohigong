@@ -6,9 +6,7 @@ import { useEffect, useState } from "react";
 import { Product } from "@/types";
 
 const ProductDetail = () => {
-  console.log("ProductDetail - render");
   const { id } = useParams();
-  console.log("ProductDetail - id from params:", id);
 
   const [productDetail, setProductDetail] = useAtom(productDetailState);
   const [selectedProductId, setSelectedProductId] = useAtom(
@@ -21,9 +19,7 @@ const ProductDetail = () => {
   const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    console.log("ProductDetail - useEffect - id:", id);
     if (id) {
-      console.log("ProductDetail - useEffect - setting product ID:", id);
       setSelectedProductId(id);
     }
   }, [id]);
@@ -57,7 +53,6 @@ const ProductDetail = () => {
   // };
 
   if (!productDetail) {
-    console.log("ProductDetail - rendering loading state");
     return (
       <Page>
         <div className="p-4">
@@ -76,7 +71,6 @@ const ProductDetail = () => {
     );
   }
 
-  console.log("ProductDetail - rendering product detail:", productDetail);
   return (
     <Page>
       <div className="p-4">

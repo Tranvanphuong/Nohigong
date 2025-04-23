@@ -174,7 +174,6 @@ export default function CheckoutPage() {
           ReturnRecord: true,
         },
       };
-      console.log("Order Data:", JSON.stringify(orderData.commitOrder));
       // Gọi API đặt hàng
       await services.order.create(orderData?.commitOrder);
 

@@ -24,18 +24,12 @@ export default function ProductItem(props: ProductItemProps) {
   const setIsQuickBuyModalOpen = useSetAtom(isQuickBuyModalOpenState);
   const setQuickBuy = useSetAtom(quickBuyState);
 
-  console.log(setSelectedProductId);
   const getImageUrl = (fileName: string | null) => {
     return services.product.getImageUrl(fileName);
   };
 
   const handleClick = async () => {
-    console.log(
-      "ProductItem - handleClick - setting product ID:",
-      props.product.inventory_item_id
-    );
     setSelectedProductId(props.product.inventory_item_id);
-    console.log("ProductItem - handleClick - navigating to product page");
     navigate(`/product/${props.product.inventory_item_id}`);
   };
 

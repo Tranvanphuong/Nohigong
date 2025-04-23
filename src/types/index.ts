@@ -23,7 +23,7 @@ export interface Product {
     modified_by: string;
     modified_date: string;
   }[];
-  classifies?: Classify[];
+  classifies?: Product[];
   sku_code?: string;
   brand_name?: string;
   instock?: number;
@@ -98,20 +98,16 @@ export interface Classify {
   }[];
 }
 
-export type SelectedOptions = {
-  size?: Size;
-  color?: Color["name"];
-};
+export interface SelectedOptions {
+  size?: string;
+  color?: string;
+}
 
 export interface CartItem {
   id: number;
   product: Product;
   options: SelectedOptions;
   quantity: number;
-  variant?: {
-    inventory_item_id: string;
-    inventory_item_name: string;
-  } | null;
 }
 
 export type Cart = CartItem[];

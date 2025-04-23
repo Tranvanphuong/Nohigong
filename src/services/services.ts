@@ -79,7 +79,6 @@ export const services = {
             avatarType: "large",
           });
         });
-        console.log("userInfoResult", userInfoResult);
 
         const phoneData = await new Promise((resolve, reject) => {
           getPhoneNumber({
@@ -174,7 +173,6 @@ export const services = {
       try {
         // Gọi API tạo đơn hàng
         const response = await externalApi.createOrder(orderData);
-        console.log(response);
         // Hiển thị thông báo thành công
         await showToast({
           message: "Đặt hàng thành công!",

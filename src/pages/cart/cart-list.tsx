@@ -9,7 +9,10 @@ export default function CartList() {
     <div className="flex-1 overflow-y-auto">
       {cart.map((item) => (
         <CartItem key={item.id} {...item} />
-      ))}
+      ))
+      
+      
+      }
     </div>
   );
 }

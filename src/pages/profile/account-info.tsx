@@ -16,21 +16,16 @@ export default function AccountInfoPage() {
   useEffect(() => {
     const fetchPhoneNumber = async () => {
       try {
-        console.log("2. Bắt đầu lấy access token");
         const accessToken = await getAccessToken({});
-        console.log("3. Access token:", accessToken);
         await new Promise((resolve, reject) => {
           getPhoneNumber({
             success: async (data) => {
               try {
-                console.log("data", data);
                 let { token } = data;
-                console.log("Phone token:", token);
                 var userPhones = await getUserNumber({
                   access_token: accessToken,
                   code: token,
                 });
-                console.log("userPhones", userPhones);
                 setPhoneNumber(userPhones?.data?.number);
 
                 resolve(null);

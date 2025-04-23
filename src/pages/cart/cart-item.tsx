@@ -14,7 +14,7 @@ const SWIPE_TO_DELTE_OFFSET = 80;
 
 export default function CartItem(props: CartItemProps) {
   const [quantity, setQuantity] = useState(props.quantity);
-  const { addToCart } = useAddToCart(props.product, props.id);
+  const { addToCart } = useAddToCart(props.product, props?.id);
 
   const [selectedItemIds, setSelectedItemIds] = useAtom(
     selectedCartItemIdsState
@@ -95,14 +95,10 @@ export default function CartItem(props: CartItemProps) {
           alt={props.product.inventory_item_name}
         />
         <div className="py-4 pr-4 flex-1 border-b-[0.5px] border-black/10">
-          <div className="text-sm">{props.product.inventory_item_name}</div>
+          <div className="text-sm">
+            {props?.product.inventory_item_name}
+          </div>
 
-          {/* Hiển thị thông tin phiên bản */}
-          {props.variant && (
-            <div className="text-xs text-green-600 mt-0.5 font-medium">
-              Phiên bản: {props.variant.inventory_item_name}
-            </div>
-          )}
 
           {/* Hiển thị các thuộc tính khác */}
           {displayOptions && (

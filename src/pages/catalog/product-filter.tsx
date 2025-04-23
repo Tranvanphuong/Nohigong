@@ -19,7 +19,6 @@ export default function ProductFilter() {
       try {
         setLoading(true);
         const response = await services.category.getCategories();
-        console.log('Categories response:', response); // Log để kiểm tra dữ liệu
         if (response && response.Data) {
           setCategories(response.Data);
         }

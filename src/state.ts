@@ -12,6 +12,7 @@ import type {
   Product,
   InventoryItemCategory,
 } from "@/types";
+import type { CartItem } from "@/types/index";
 import { GetUserInfoReturns } from "@/types/user";
 import {
   post,
@@ -153,7 +154,7 @@ export const productState = atomFamily((id: string) =>
   })
 );
 
-export const cartState = atom<Cart[]>([]);
+export const cartState = atom<CartItem[]>([]);
 
 export const selectedCartItemIdsState = atom<number[]>([]);
 
@@ -189,20 +190,15 @@ export const selectedProductIdState = atom<string | null>(null);
 
 export const productDetailState = atom<Promise<Product | null>>(async (get) => {
   const productId = get(selectedProductIdState);
-  console.log("productDetailState - productId:", productId);
 
   if (!productId) {
-    console.log("productDetailState - no productId, returning null");
     return null;
   }
 
   try {
-    console.log("productDetailState - calling getProductDetail");
     const response = await getProductDetail(productId);
-    console.log("productDetailState - response:", response);
     return response as Product;
   } catch (error) {
-    console.error("productDetailState - error:", error);
     return null;
   }
 });

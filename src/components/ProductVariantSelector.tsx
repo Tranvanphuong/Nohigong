@@ -3,6 +3,7 @@ import { Product } from '../types';
 import { Box, Text, Sheet, Button } from 'zmp-ui';
 import { services } from '@/services/services';
 
+
 interface ProductVariantSelectorProps {
   product: Product;
   visible: boolean;
@@ -68,10 +69,7 @@ const ProductVariantSelector: React.FC<ProductVariantSelectorProps> = ({
               />
             </div>
             <Text.Title size="small" className='currency-product'>
-              {new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND'
-              }).format(selectedVariant ? selectedVariant.unit_price: product.unit_price)}
+              {formatPrice(selectedVariant ? selectedVariant.unit_price : product.unit_price)}
             </Text.Title>
             <Text.Title size="small">
               {selectedVariant?.inventory_item_name || product.inventory_item_name}

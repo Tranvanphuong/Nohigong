@@ -9,7 +9,6 @@ interface SharePhoneModalProps {
 }
 
 const savePhoneNumber = async (phone: string) => {
-  console.log("savePhoneNumber", phone);
   try {
     await services.customer.savePhoneNumber(phone, "test 8", "zalo");
     console.log("Đã lưu số điện thoại thành công");

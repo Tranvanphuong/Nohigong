@@ -1,53 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "zmp-ui";
-import { Product, Classify } from "../types";
-import ProductVariantSelector from "./ProductVariantSelector";
+import { Product } from "../types";
 
 interface BuyNowButtonProps {
   product: Product;
-  onBuyNow: (variant?: Classify) => void;
+  onBuyNow: () => void;
 }
 
 const BuyNowButton: React.FC<BuyNowButtonProps> = ({ product, onBuyNow }) => {
-  const [showVariantSelector, setShowVariantSelector] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState<Classify | null>(null);
-
-  const handleBuyNow = () => {
-    if (product.classifies && product.classifies.length > 0) {
-      setShowVariantSelector(true);
-    } else {
-      onBuyNow();
-    }
-  };
-
-  const handleVariantSelect = (variant: Classify) => {
-    setShowVariantSelector(false);
-    setSelectedVariant(variant);
-    console.log("variant" + JSON.stringify(variant));
-    onBuyNow(variant);
-  };
-
-  const buttonText = selectedVariant
-    ? `Mua ngay (${selectedVariant.inventory_item_name})`
-    : "Mua ngay";
-
   return (
-    <>
-      <Button
-        fullWidth
-        onClick={handleBuyNow}
-        className="border-radius-4 bg-primary "
-      >
-        Mua ngay
-      </Button>
-
-      <ProductVariantSelector
-        product={product}
-        visible={showVariantSelector}
-        onClose={() => setShowVariantSelector(false)}
-        onSelect={handleVariantSelect}
-      />
-    </>
+    <Button
+      fullWidth
+      onClick={onBuyNow}
+      className="border-radius-4 bg-primary"
+    >
+      Mua ngay
+    </Button>
   );
 };
 

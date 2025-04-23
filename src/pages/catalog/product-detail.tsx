@@ -11,23 +11,33 @@ import {
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
 import toast from "react-hot-toast";
 import { Color, Size, Product } from "@/types";
+import { SelectedOptions } from "@/types/index";
 import SharePhoneModal from "@/components/SharePhoneModal";
 import { services } from "@/services/services";
 import { Icon } from "zmp-ui";
 import BuyNowButton from "@/components/BuyNowButton";
 import Carousel from "@/components/carousel";
+import ProductVariantSelector from "@/components/ProductVariantSelector";
 
-export default function ProductDetailPage() {
-  const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const { id } = useParams();
-
+const ProductDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+  const [showVariantSelector, setShowVariantSelector] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({
+    size: undefined,
+    color: undefined
+  });
+  const selectedVariantRef = useRef<Product | null>(null);
+
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+
   if (!id) {
     throw new Error("Product ID is required");
   }
@@ -48,7 +58,7 @@ export default function ProductDetailPage() {
   }
 
   const [selectedColor, setSelectedColor] = useState<Color>();
-  const [selectedSize, setSelectedSize] = useState<Size>();
+  const [selectedSize, setSelectedSize] = useState<string>();
   const [showSharePhoneModal, setShowSharePhoneModal] = useState(false);
   // State để lưu các thuộc tính đã chọn
   const [selectedProperties, setSelectedProperties] = useState<
@@ -58,51 +68,35 @@ export default function ProductDetailPage() {
   const [matchedProduct, setMatchedProduct] = useState<Product | null>(null);
   // State để lưu sản phẩm biến thể được chọn
   const [selectedVariant, setSelectedVariant] = useState<Product | null>(null);
-  // State để lưu sản phẩm đã cập nhật với thông tin variant
-  const [currentProduct, setCurrentProduct] = useState(product);
 
-  // Cập nhật currentProduct khi product thay đổi
+  // Sử dụng useRef để lưu trữ variant được chọn
+//  selectedVariantRef = useRef<Product | null>(null);
+
+  // Sử dụng useAddToCart với currentProduct
+  const { addToCart, options, setOptions } = useAddToCart(currentProduct || {} as Product);
+
+  // Hàm xử lý khi chọn variant
+  const handleVariantSelect = (variant: Product) => {
+    setCurrentProduct(variant);
+    setShowVariantSelector(false);
+  };
+
+  // Theo dõi currentProduct và thêm vào giỏ hàng
   useEffect(() => {
-    setCurrentProduct(product);
-  }, [product]);
-
-  const { addToCart, setOptions } = useAddToCart(currentProduct);
-
-  // Hàm xử lý thêm sản phẩm biến thể vào giỏ hàng
-  const handleAddVariantToCart = useCallback(
-    (variant: Product) => {
-      // Tạo sản phẩm mới với thông tin biến thể
-      const productWithVariant = {
-        ...product,
-        inventory_item_id: variant.inventory_item_id,
-        inventory_item_name: variant.inventory_item_name,
-        // Thêm thông tin variant vào sản phẩm để có thể hiển thị trong giỏ hàng
-        variant: {
-          inventory_item_id: variant.inventory_item_id,
-          inventory_item_name: variant.inventory_item_name,
-        },
-      };
-
-      // Lưu biến thể đã chọn
-      setSelectedVariant(variant);
-
-      // Cập nhật sản phẩm hiện tại với thông tin variant
-      setCurrentProduct(productWithVariant);
-
-      // Thêm sản phẩm vào giỏ hàng sau khi cập nhật state
-      setTimeout(() => {
-        addToCart(1);
-      }, 0);
-    },
-    [product, addToCart]
-  );
+    if (currentProduct) {
+      addToCart(1);
+      navigate('/cart');
+    }
+  }, [currentProduct, addToCart, navigate]);
 
   useEffect(() => {
-    setOptions({
-      size: selectedSize,
-      color: selectedColor?.name,
-    });
-  }, [selectedSize, selectedColor]);
+    if (selectedSize && selectedColor) {
+      setOptions({
+        size: selectedSize,
+        color: selectedColor.name,
+      });
+    }
+  }, [selectedSize, selectedColor, setOptions]);
 
   // Hàm xử lý khi chọn thuộc tính
   // const handlePropertySelect = (propertyName: string, value: string) => {
@@ -151,44 +145,40 @@ export default function ProductDetailPage() {
   };
 
   // Hàm xử lý mua ngay
-  const handleBuyNow = useCallback(
-    (variant?: Product) => {
-      if (variant) {
-        // Nếu có phiên bản được chọn, thêm sản phẩm biến thể vào giỏ hàng
-        handleAddVariantToCart(variant);
+  const handleBuyNow = () => {
+    if (!product) {
+      console.error("Product is null");
+      return;
+    }
+    
+    if (product.classifies && product.classifies.length > 0) {
+      setShowVariantSelector(true);
+    } else {
+      setCurrentProduct(product);
+    }
+  };
 
-        // Đợi một chút để đảm bảo thông tin sản phẩm được cập nhật trước khi chuyển trang
-        setTimeout(() => {
-          navigate("/cart");
-        }, 100);
-      } else {
-        // Nếu không có phiên bản, thêm sản phẩm gốc
-        addToCart(1);
-        // Chuyển đến trang giỏ hàng
-        navigate("/cart");
-      }
-    },
-    [addToCart, handleAddVariantToCart, navigate]
-  );
+  // Sử dụng currentProduct thay vì product trong UI
+  const displayProduct = currentProduct || product;
 
   return (
     <div className="flex flex-col h-full pb-[60px] relative">
       <div className="flex-1 overflow-y-auto">
         <Carousel
           slides={
-            (product as any).resources && (product as any).resources.length > 0
-              ? (product as any).resources.map((image: any) => (
+            (displayProduct as any).resources && (displayProduct as any).resources.length > 0
+              ? (displayProduct as any).resources.map((image: any) => (
                   <img
                     src={getImageUrl(image.file_name || "")}
                     className="w-full aspect-square object-cover"
-                    alt={product.inventory_item_name}
+                    alt={displayProduct.inventory_item_name}
                   />
                 ))
               : [
                   <img
-                    src={getImageUrl(product.file_name || "")}
+                    src={getImageUrl(displayProduct.file_name || "")}
                     className="w-full aspect-square object-cover"
-                    alt={product.inventory_item_name}
+                    alt={displayProduct.inventory_item_name}
                   />,
                 ]
           }
@@ -196,14 +186,14 @@ export default function ProductDetailPage() {
         <div className="p-4 space-y-4">
           <div className="space-y-1">
             <div className="text-3xs text-subtitle">
-              {product.inventory_item_category_name}
+              {displayProduct.inventory_item_category_name}
             </div>
             <div className="text-lg font-medium">
-              {product.inventory_item_name}
+              {displayProduct.inventory_item_name}
             </div>
             <div className="flex items-center space-x-2">
               <div className="text-sm font-medium text-primary">
-                {formatPrice(product.unit_price)}
+                {formatPrice(displayProduct.unit_price)}
               </div>
             </div>
           </div>
@@ -218,11 +208,11 @@ export default function ProductDetailPage() {
           )}
 
           {/* Mô tả sản phẩm */}
-          {product.description && (
+          {displayProduct.description && (
             <div className="mb-4">
               <h2 className="text-lg font-semibold mb-2">Mô tả sản phẩm</h2>
               <p className="text-gray-600 whitespace-pre-line">
-                {product.description}
+                {displayProduct.description}
               </p>
             </div>
           )}
@@ -284,17 +274,17 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-600">Mã sản phẩm:</p>
-                <p className="font-medium">{product.sku_code}</p>
+                <p className="font-medium">{displayProduct.sku_code}</p>
               </div>
               <div>
                 <p className="text-gray-600">Danh mục:</p>
                 <p className="font-medium">
-                  {product.inventory_item_category_name}
+                  {displayProduct.inventory_item_category_name}
                 </p>
               </div>
               <div>
                 <p className="text-gray-600">Thương hiệu:</p>
-                <p className="font-medium">{product.brand_name}</p>
+                <p className="font-medium">{displayProduct.brand_name}</p>
               </div>
             </div>
           </div>
@@ -313,10 +303,23 @@ export default function ProductDetailPage() {
             <span>Thêm vào giỏ</span>
           </button>
           <div className="w-[190px]">
-            <BuyNowButton product={product} onBuyNow={handleBuyNow} />
+            <BuyNowButton 
+              product={displayProduct} 
+              onBuyNow={handleBuyNow}
+            />
           </div>
         </div>
       </div>
+
+      {/* Popup chọn variant */}
+      <ProductVariantSelector
+        product={currentProduct || product}
+        visible={showVariantSelector}
+        onClose={() => setShowVariantSelector(false)}
+        onSelect={handleVariantSelect}
+      />
     </div>
   );
-}
+};
+
+export default ProductDetailPage;
