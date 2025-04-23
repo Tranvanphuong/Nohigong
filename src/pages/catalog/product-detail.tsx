@@ -35,6 +35,7 @@ const ProductDetailPage: React.FC = () => {
     color: undefined
   });
   const selectedVariantRef = useRef<Product | null>(null);
+  const [currentAction, setCurrentAction] = useState<'addToCart' | 'buyNow' | null>(null);
 
   const [phoneNumber, setPhoneNumber] = useState<string>("");
 
@@ -75,6 +76,36 @@ const ProductDetailPage: React.FC = () => {
   // Sử dụng useAddToCart với currentProduct
   const { addToCart, options, setOptions } = useAddToCart(currentProduct || {} as Product);
 
+  // Hàm xử lý mua ngay
+  const handleBuyNow = () => {
+    console.log("đã vào", product);
+    if (!product) {
+      console.error("Product is null");
+      return;
+    }
+    setCurrentAction('buyNow');
+    if (product.classifies && product.classifies.length > 0) {
+      setShowVariantSelector(true);
+    } else {
+      setCurrentProduct(product);
+    }
+  };
+
+  // Hàm xử lý thêm vào giỏ
+  const handleAddToCart = () => {
+    if (!product) {
+      console.error("Product is null");
+      return;
+    }
+    setCurrentAction('addToCart');
+    if (product.classifies && product.classifies.length > 0) {
+     
+      setShowVariantSelector(true);
+    } else {
+      setCurrentProduct(product);
+    }
+  };
+
   // Hàm xử lý khi chọn variant
   const handleVariantSelect = (variant: Product) => {
     setCurrentProduct(variant);
@@ -83,11 +114,25 @@ const ProductDetailPage: React.FC = () => {
 
   // Theo dõi currentProduct và thêm vào giỏ hàng
   useEffect(() => {
-    if (currentProduct) {
+    if (currentProduct ){
+      
+      if( currentAction === 'addToCart') {
+      // Chỉ thêm vào giỏ nếu là action "Thêm vào giỏ"
+        addToCart(1);
+        toast.success("Đã thêm vào giỏ hàng");
+        setCurrentAction(null);
+        setCurrentProduct(null);
+      }
+      else if(currentAction === 'buyNow') {
       addToCart(1);
       navigate('/cart');
+      setCurrentAction(null);
+      setCurrentProduct(null);
+      }
+      // Nếu là action "Mua ngay" thì không thêm vào giỏ ở đây
+      // mà sẽ xử lý trong useEffect khác
     }
-  }, [currentProduct, addToCart, navigate]);
+  }, [currentProduct, currentAction, addToCart]);
 
   useEffect(() => {
     if (selectedSize && selectedColor) {
@@ -128,35 +173,6 @@ const ProductDetailPage: React.FC = () => {
   //     }
   //   }
   // };
-
-  const handleAddToCart = async () => {
-    console.log("1. Bắt đầu xử lý click button");
-    addToCart(1);
-    try {
-      const phoneNumber = await services.customer.getAndSavePhoneNumber();
-      if (phoneNumber) {
-        setPhoneNumber(phoneNumber);
-      }
-      toast.success("Đã thêm vào giỏ hàng");
-    } catch (error: unknown) {
-      console.error("Error in handleAddToCart:", error);
-      toast.error("Có lỗi xảy ra: " + (error as Error).message);
-    }
-  };
-
-  // Hàm xử lý mua ngay
-  const handleBuyNow = () => {
-    if (!product) {
-      console.error("Product is null");
-      return;
-    }
-    
-    if (product.classifies && product.classifies.length > 0) {
-      setShowVariantSelector(true);
-    } else {
-      setCurrentProduct(product);
-    }
-  };
 
   // Sử dụng currentProduct thay vì product trong UI
   const displayProduct = currentProduct || product;

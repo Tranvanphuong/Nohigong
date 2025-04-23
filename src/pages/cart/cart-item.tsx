@@ -10,8 +10,10 @@ import { useAtom } from "jotai";
 import { selectedCartItemIdsState } from "@/state";
 import { useEffect, useMemo, useState } from "react";
 
-const SWIPE_TO_DELTE_OFFSET = 80;
+import {externalApi} from "@/api/externalApi";
 
+const SWIPE_TO_DELTE_OFFSET = 80;
+ 
 export default function CartItem(props: CartItemProps) {
   const [quantity, setQuantity] = useState(props.quantity);
   const { addToCart } = useAddToCart(props.product, props?.id);
@@ -90,7 +92,7 @@ export default function CartItem(props: CartItemProps) {
           }}
         />
         <img
-          src={`https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${props.product.file_name}`}
+          src={externalApi.getProductImage(props?.product?.file_name|| "")}
           className="w-14 h-14 rounded-lg"
           alt={props.product.inventory_item_name}
         />

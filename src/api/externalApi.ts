@@ -2,11 +2,11 @@ import { Order, OrderDetailImpl, OrderImpl } from "@/models/Order";
 import { post, request } from "../utils/request";
 
 const BASE_URL = "https://eshopapp.misa.vn/g2/api";
-
+const Database_ID = "cadc7044-15b1-11f0-9afa-005056b275fa";
 export const externalApi = {
   // API cho quản lý sản phẩm
   getProductImage: (fileName: string) => {
-    return `${BASE_URL}/file/files?type=3&dbId=cadc7044-15b1-11f0-9afa-005056b275fa&file=${fileName}`;
+    return `${BASE_URL}/file/files?type=3&dbId=${Database_ID}&file=${fileName}`;
   },
 
   // API cho quản lý khách hàng

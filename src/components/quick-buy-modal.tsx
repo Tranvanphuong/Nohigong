@@ -7,6 +7,7 @@ import {
 } from "@/state";
 import { formatPrice } from "@/utils/format";
 import { useCallback } from "react";
+import {externalApi} from "@/api/externalApi";
 
 export default function QuickBuyModal() {
   const [isOpen, setIsOpen] = useAtom(isQuickBuyModalOpenState);
@@ -40,7 +41,7 @@ export default function QuickBuyModal() {
           <img
             src={
               product.file_name
-                ? `https://eshopapp.misa.vn/g2/api/file/files?type=3&dbId=678b418c-e461-11ef-9e58-005056b275fa&file=${product.file_name}`
+                ? `${externalApi.getProductImage(product.file_name)}`
                 : ""
             }
             alt={product.inventory_item_name}
