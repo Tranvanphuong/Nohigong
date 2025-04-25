@@ -17,6 +17,7 @@ export default function AccountInfoPage() {
     const fetchPhoneNumber = async () => {
       try {
         const accessToken = await getAccessToken({});
+        console.log("Access Token:", accessToken);
         await new Promise((resolve, reject) => {
           getPhoneNumber({
             success: async (data) => {

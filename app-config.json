@@ -15,7 +15,7 @@
   "listAsyncJS": [],
   "template": {
     "name": "zaui-fashion",
-    "apiUrl": "https://eshopapp.misa.vn/g2/api/",
+    "apiUrl": "https://eshopapp.misa.vn/g3/api/zma/",
     "oaIDtoOpenChat": "1958015634607501082"
   }
 }

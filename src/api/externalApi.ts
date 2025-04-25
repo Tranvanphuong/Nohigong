@@ -16,7 +16,7 @@ export const externalApi = {
 
   // API cho quản lý kho
   editInventoryItem: (id: string, data: any) => {
-    return request(`${BASE_URL}/dimob/InventoryItems/edit/${id}`, {
+    return request(`${BASE_URL}/InventoryItemZMAs/edit/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
       headers: {

@@ -1,5 +1,6 @@
 import { getConfig } from "./template";
 import { getToken } from "./auth";
+import { getAccessToken } from "zmp-sdk/apis";
 
 const API_URL = getConfig((config) => config.template.apiUrl);
 
@@ -76,12 +77,12 @@ export async function post<T, D = any>(
     headers?: Record<string, string>;
   }
 ): Promise<T> {
-  const url = API_URL
-    ? `${API_URL}${path}`
-    : mockUrls[`../mock${path}.json`]?.default;
-
+  const url = API_URL ? `${API_URL}${path}` : "";
+  const accessToken = await getAccessToken({});
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    Authorization: `${accessToken}`,
+    "X-AppId": "123456",
     ...options?.headers,
   };
 
@@ -89,8 +90,7 @@ export async function post<T, D = any>(
     headers["Host"] = window.location.host;
   }
 
-  headers["authorization"] = `Bearer ${getToken()}`;
-
+  // headers["authorization"] = `Bearer ${getToken()}`;
   let optionsFetch = {
     method: "POST",
     headers,
@@ -128,13 +128,12 @@ function logCurlFromFetch(url: string, options: RequestInit = {}) {
   if (body) {
     curl.push(`-d '${body}'`);
   }
-
 }
 
 export const getProductDetail = async (id: string) => {
   try {
     const response = await fetch(
-      `https://eshopapp.misa.vn/g2/api/dimob/InventoryItems/edit/${id}`,
+      `https://eshopapp.misa.vn/g2/api/InventoryItemZMAs/edit/${id}`,
       {
         headers: {
           accept: "application/json, text/plain, */*",

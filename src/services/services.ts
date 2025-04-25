@@ -126,7 +126,7 @@ export const services = {
     }) => {
       try {
         const response = await fetch(
-          "https://eshopapp.misa.vn/g2/api/dimob/inventoryItems/list-combo",
+          "https://eshopapp.misa.vn/g2/api/inventoryItems/list-combo",
           {
             method: "POST",
             headers: {
@@ -244,7 +244,7 @@ export const services = {
   category: {
     async getCategories(): Promise<InventoryItemCategoryResponse> {
       const response = await fetch(
-        "https://eshopapp.misa.vn/g2/api/dimob/inventoryItemCategorys/list-combo",
+        "https://eshopapp.misa.vn/g2/api/inventoryItemCategorys/list-combo",
         {
           method: "POST",
           headers: {
