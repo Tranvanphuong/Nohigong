@@ -1,7 +1,7 @@
 import { Order, OrderDetailImpl, OrderImpl } from "@/models/Order";
 import { post, request } from "../utils/request";
 
-const BASE_URL = "https://eshopapp.misa.vn/g2/api";
+const BASE_URL = "https://eshopapp.misa.vn/g3/api";
 const Database_ID = "cadc7044-15b1-11f0-9afa-005056b275fa";
 export const externalApi = {
   // API cho quản lý sản phẩm
