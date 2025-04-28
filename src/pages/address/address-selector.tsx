@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Select, Box, Sheet, Text } from "zmp-ui";
+import { Select, Box, Sheet, Text, Spinner } from "zmp-ui";
 import addressService from "@/services/addressService";
 import Address from "@/models/Address";
+import { AddressLevel } from "@/types/address";
 
 interface AddressSelectorProps {
   onAddressSelected: (
@@ -29,63 +30,94 @@ export default function AddressSelector({
   const [selectedWard, setSelectedWard] = useState<Address | null>(null);
   const [selectedHamlet, setSelectedHamlet] = useState<Address | null>(null);
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   // Tải dữ liệu tỉnh/thành phố khi component được mount
   useEffect(() => {
-    const loadData = async () => {
-      await addressService.loadAddresses();
-      const provinceList = addressService.getProvinces();
-      setProvinces(provinceList);
+    const loadProvinces = async () => {
+      setLoading(true);
+      try {
+        const provinceList = await addressService.getProvinces();
+        setProvinces(provinceList);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách tỉnh/thành phố:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    loadData();
+    loadProvinces();
   }, []);
 
   // Xử lý khi chọn tỉnh/thành phố
-  const handleProvinceChange = (provinceId: string) => {
+  const handleProvinceChange = async (provinceId: string) => {
     const province = provinces.find((p) => p.id === provinceId) || null;
     setSelectedProvince(province);
     setSelectedDistrict(null);
     setSelectedWard(null);
     setSelectedHamlet(null);
+    setDistricts([]);
+    setWards([]);
+    setHamlets([]);
 
     if (province) {
-      const districtList = addressService.getDistrictsByProvince(province.id);
-      setDistricts(districtList);
-    } else {
-      setDistricts([]);
+      setLoading(true);
+      try {
+        const districtList = await addressService.getDistrictsByProvince(
+          province.id
+        );
+        setDistricts(districtList);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách quận/huyện:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
     onAddressSelected(province, null, null, null);
   };
 
   // Xử lý khi chọn quận/huyện
-  const handleDistrictChange = (districtId: string) => {
+  const handleDistrictChange = async (districtId: string) => {
     const district = districts.find((d) => d.id === districtId) || null;
     setSelectedDistrict(district);
     setSelectedWard(null);
     setSelectedHamlet(null);
+    setWards([]);
+    setHamlets([]);
 
     if (district) {
-      const wardList = addressService.getWardsByDistrict(district.id);
-      setWards(wardList);
-    } else {
-      setWards([]);
+      setLoading(true);
+      try {
+        const wardList = await addressService.getWardsByDistrict(district.id);
+        setWards(wardList);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách phường/xã:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
     onAddressSelected(selectedProvince, district, null, null);
   };
 
   // Xử lý khi chọn phường/xã
-  const handleWardChange = (wardId: string) => {
+  const handleWardChange = async (wardId: string) => {
     const ward = wards.find((w) => w.id === wardId) || null;
     setSelectedWard(ward);
     setSelectedHamlet(null);
+    setHamlets([]);
 
     if (ward) {
-      const hamletList = addressService.getHamletsByWard(ward.id);
-      setHamlets(hamletList);
-    } else {
-      setHamlets([]);
+      setLoading(true);
+      try {
+        const hamletList = await addressService.getHamletsByWard(ward.id);
+        setHamlets(hamletList);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách ấp/thôn:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
     onAddressSelected(selectedProvince, selectedDistrict, ward, null);
@@ -95,7 +127,6 @@ export default function AddressSelector({
   const handleHamletChange = (hamletId: string) => {
     const hamlet = hamlets.find((h) => h.id === hamletId) || null;
     setSelectedHamlet(hamlet);
-
     onAddressSelected(selectedProvince, selectedDistrict, selectedWard, hamlet);
   };
 
@@ -103,6 +134,12 @@ export default function AddressSelector({
 
   return (
     <Box className="space-y-4">
+      {loading && (
+        <Box className="flex justify-center py-2">
+          <Spinner />
+        </Box>
+      )}
+
       <Select
         label="Tỉnh/Thành phố"
         placeholder="Chọn Tỉnh/Thành phố"

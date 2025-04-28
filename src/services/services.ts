@@ -5,7 +5,7 @@ import {
   getUserInfo,
   showToast,
 } from "zmp-sdk/apis";
-import { getUserNumber } from "@/utils/request";
+import { getAsync, getUserNumber, post } from "@/utils/request";
 import { getToken } from "@/utils/auth";
 import { Order, OrderImpl } from "@/models/Order";
 
@@ -126,7 +126,7 @@ export const services = {
     }) => {
       try {
         const response = await fetch(
-          "https://eshopapp.misa.vn/g2/api/inventoryItems/list-combo",
+          "https://eshopapp.misa.vn/g2/api/dimob/inventoryItems/list-combo",
           {
             method: "POST",
             headers: {
@@ -243,31 +243,21 @@ export const services = {
 
   category: {
     async getCategories(): Promise<InventoryItemCategoryResponse> {
-      const response = await fetch(
-        "https://eshopapp.misa.vn/g2/api/inventoryItemCategorys/list-combo",
+      const response = await post<InventoryItemCategoryResponse>(
+        `inventoryItemCategoryzmas/list-combo`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${await getToken()}`,
-          },
-          body: JSON.stringify({
-            skip: 0,
-            take: 20,
-            sort: "",
-            filter: "[]",
-            emptyFilter: "",
-            columns: "*",
-            selectedValue: "",
-          }),
+          skip: 0,
+          take: 20,
+          sort: "",
+          filter: "[]",
+          emptyFilter: "",
+          columns: "*",
+          selectedValue: "",
         }
       );
+      console.log("response", response);
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-
-      return response.json();
+      return response;
     },
   },
 };

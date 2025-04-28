@@ -1,17 +1,20 @@
 import { Order, OrderDetailImpl, OrderImpl } from "@/models/Order";
 import { post, request } from "../utils/request";
+import { getConfig } from "@/utils/template";
 
-const BASE_URL = "https://eshopapp.misa.vn/g3/api";
+const BASE_URL = getConfig((config) => config.template.apiUrl);
+
+const API_URL = "https://eshopapp.misa.vn/g3/api";
 const Database_ID = "cadc7044-15b1-11f0-9afa-005056b275fa";
 export const externalApi = {
   // API cho quản lý sản phẩm
   getProductImage: (fileName: string) => {
-    return `${BASE_URL}/file/files?type=3&dbId=${Database_ID}&file=${fileName}`;
+    return `${API_URL}/file/files?type=3&dbId=${Database_ID}&file=${fileName}`;
   },
 
   // API cho quản lý khách hàng
   saveCustomer: (data: any) => {
-    return post(`socialmob/CustomerChannels/save-customer`, data);
+    return post(`CustomerChannels/save-customer`, data);
   },
 
   // API cho quản lý kho
@@ -26,12 +29,12 @@ export const externalApi = {
   },
 
   createOrder: (data: any) => {
-    return post(`bizmob/MessageOrderMobs/commit`, data);
+    return post(`MessageOrderZMAs/commit`, data);
   },
 
   // API cho quản lý đơn hàng
   getOrderDetail: (orderId: string) => {
-    return request<any>(`${BASE_URL}/bizmob/MessageOrderMobs/${orderId}`, {
+    return request<any>(`${BASE_URL}MessageOrderZMAs/${orderId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +43,7 @@ export const externalApi = {
   },
 
   getOrderList: (params: { page: number; pageSize: number }) => {
-    return request<any>(`${BASE_URL}/bizmob/MessageOrderMobs/list`, {
+    return request<any>(`${BASE_URL}MessageOrderZMAs/list`, {
       method: "POST",
       body: JSON.stringify(params),
       headers: {
@@ -70,6 +73,6 @@ export const externalApi = {
 
   // API cho tải file
   downloadFile: (fileResourceId: string) => {
-    return `${BASE_URL}/di/FileResources/download/${fileResourceId}`;
+    return `${API_URL}/di/FileResources/download/${fileResourceId}`;
   },
 };

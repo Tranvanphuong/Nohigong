@@ -77,8 +77,10 @@ export async function post<T, D = any>(
     headers?: Record<string, string>;
   }
 ): Promise<T> {
+  console.log("post", path, data);
   const url = API_URL ? `${API_URL}${path}` : "";
   const accessToken = await getAccessToken({});
+  console.log("accessToken", accessToken);
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `${accessToken}`,
@@ -91,12 +93,7 @@ export async function post<T, D = any>(
   }
 
   // headers["authorization"] = `Bearer ${getToken()}`;
-  let optionsFetch = {
-    method: "POST",
-    headers,
-    body: JSON.stringify(data),
-  };
-  logCurlFromFetch(url, optionsFetch);
+  console.log("Commit", JSON.stringify(data));
   const response = await fetch(url, {
     method: "POST",
     headers,
