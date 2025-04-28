@@ -132,18 +132,19 @@ function logCurlFromFetch(url: string, options: RequestInit = {}) {
 
 export const getProductDetail = async (id: string) => {
   try {
-    const response = await fetch(
-      `https://eshopapp.misa.vn/g2/api/InventoryItemZMAs/edit/${id}`,
-      {
-        headers: {
-          accept: "application/json, text/plain, */*",
-          authorization: `Bearer ${getToken()}`,
-          "x-ms-bid": "a38f9189-ad87-11ef-a35e-005056b28600",
-        },
-      }
-    );
-    const data = await response.json();
-    return data;
+    const response = await getAsync(`/InventoryItemZMAs/edit/${id}`);
+    // const response = await fetch(
+    //   `https://eshopapp.misa.vn/g2/api/dimob/InventoryItems/edit/${id}`,
+    //   {
+    //     headers: {
+    //       accept: "application/json, text/plain, */*",
+    //       authorization: `Bearer ${getToken()}`,
+    //       "x-ms-bid": "a38f9189-ad87-11ef-a35e-005056b28600",
+    //     },
+    //   }
+    // );
+    // const data = await response.json();
+    return response;
   } catch (error) {
     console.error("Error in getProductDetail:", error);
     throw error;
@@ -173,3 +174,35 @@ export const getUserNumber = async ({
     throw error;
   }
 };
+
+export async function getAsync<T>(
+  path: string,
+
+  options?: {
+    headers?: Record<string, string>;
+  }
+): Promise<T> {
+  const url = API_URL ? `${API_URL}${path}` : "";
+  const accessToken = await getAccessToken({});
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `${accessToken}`,
+    "X-AppId": "123456",
+    ...options?.headers,
+  };
+
+  if (typeof window !== "undefined") {
+    headers["Host"] = window.location.host;
+  }
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  return response.json() as T;
+}
