@@ -84,7 +84,7 @@ export async function post<T, D = any>(
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `${accessToken}`,
-    "X-AppId": "123456",
+    "X-AppId": window.APP_ID ?? "",
     ...options?.headers,
   };
 
@@ -184,7 +184,7 @@ export async function getAsync<T>(
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `${accessToken}`,
-    "X-AppId": "123456",
+    "X-AppId": window.APP_ID ?? "",
     ...options?.headers,
   };
 

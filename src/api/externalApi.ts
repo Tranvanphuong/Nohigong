@@ -4,7 +4,7 @@ import { getConfig } from "@/utils/template";
 
 const BASE_URL = getConfig((config) => config.template.apiUrl);
 
-const API_URL = "https://eshopapp.misa.vn/g3/api";
+const API_URL = "https://eshopapp.misa.vn/g2/api";
 const Database_ID = "cadc7044-15b1-11f0-9afa-005056b275fa";
 export const externalApi = {
   // API cho quản lý sản phẩm
@@ -69,6 +69,70 @@ export const externalApi = {
     );
 
     return response.Data;
+  },
+
+  // API mới theo curl đã cung cấp
+  getOrdersWithDetailNew: async (params?: {
+    skip?: number;
+    take?: number;
+    dateFrom?: Date;
+    dateTo?: Date;
+    statuses?: number[];
+  }) => {
+    const dateFrom = params?.dateFrom || new Date();
+    const dateTo = params?.dateTo || new Date();
+    dateTo.setMonth(dateTo.getMonth() + 1);
+
+    const response = await post<{ Data: any[]; Total: number }>(
+      "MessageOrderZMAs/list-with-detail",
+      {
+        skip: params?.skip || 0,
+        take: params?.take || 50,
+        sort: '[{"property":"274","desc":true}]',
+        filter: JSON.stringify([
+          {
+            op: 10,
+            aop: 1,
+            field: "274",
+            ors: [],
+            isOptionFilter: false,
+            value: dateFrom.toISOString(),
+          },
+          {
+            op: 12,
+            aop: 1,
+            field: "274",
+            ors: [],
+            isOptionFilter: false,
+            value: dateTo.toISOString(),
+          },
+          {
+            op: 14,
+            aop: 1,
+            field: 120,
+            ors: [],
+            isOptionFilter: false,
+            value: params?.statuses || [5, 110, 120, 10],
+          },
+          {
+            op: 7,
+            aop: 1,
+            field: "218",
+            ors: [],
+            isOptionFilter: false,
+            value: "5",
+          },
+        ]),
+        emptyFilter: "",
+        columns:
+          "105,472,40,615,218,274,720,564,43,53,581,622,120,47,207,37,207,567,139,122,53,57,218,582,281,280,220,594,615,141,699,142,622,124,41,140,43,399,504,144,648,675,674,673,760",
+        view: 21,
+      }
+    );
+
+    // Chuyển đổi dữ liệu thành các đối tượng OrderImpl
+    const orders = response.Data.map((orderData) => new OrderImpl(orderData));
+    return { orders, totalCount: response.Total };
   },
 
   // API cho tải file

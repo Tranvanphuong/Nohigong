@@ -230,6 +230,34 @@ Hệ thống đã được tích hợp các API để quản lý đơn hàng:
 - **Method**: POST
 - **Chức năng**: Lấy danh sách đơn hàng với phân trang
 
+### 4. API lấy danh sách đơn hàng với chi tiết
+
+- **Endpoint**: `zma/order/MessageOrders/list-with-detail`
+- **Method**: POST
+- **Chức năng**: Lấy danh sách đơn hàng với chi tiết đơn hàng
+- **Yêu cầu**:
+  ```json
+  {
+    "skip": 0,
+    "take": 50,
+    "sort": "[{\"property\":\"274\",\"desc\":true}]",
+    "filter": "[{\"op\":10,\"aop\":1,\"field\":\"274\",\"ors\":[],\"isOptionFilter\":false,\"value\":\"2025-04-06T16:59:59.000Z\"},{\"op\":12,\"aop\":1,\"field\":\"274\",\"ors\":[],\"isOptionFilter\":false,\"value\":\"2025-05-05T16:59:59.000Z\"},{\"op\":14,\"aop\":1,\"field\":120,\"ors\":[],\"isOptionFilter\":false,\"value\":[5,110,120,10]},{\"op\":7,\"aop\":1,\"field\":\"218\",\"ors\":[],\"isOptionFilter\":false,\"value\":\"5\"}]",
+    "emptyFilter": "",
+    "columns": "105,472,40,615,218,274,720,564,43,53,581,622,120,47,207,37,207,567,139,122,53,57,218,582,281,280,220,594,615,141,699,142,622,124,41,140,43,399,504,144,648,675,674,673,760",
+    "view": 21
+  }
+  ```
+- **Tham số**:
+  - `skip`: Số bản ghi bỏ qua (phân trang)
+  - `take`: Số bản ghi lấy (phân trang)
+  - `sort`: Sắp xếp theo trường
+  - `filter`: Bộ lọc với các điều kiện:
+    - Khoảng thời gian đơn hàng
+    - Trạng thái đơn hàng
+    - Các điều kiện khác
+  - `columns`: Các cột dữ liệu cần lấy
+  - `view`: ID của view
+
 ### Mô hình dữ liệu đơn hàng
 
 Dữ liệu đơn hàng được định nghĩa trong class `OrderImpl` tại `src/models/Order.ts`, bao gồm:
@@ -253,22 +281,36 @@ Dữ liệu đơn hàng được định nghĩa trong class `OrderImpl` tại `s
 - `CANCELLED` (60): Đã hủy
 - `RETURNED` (70): Đã trả hàng
 
-## Tính năng chọn phiên bản sản phẩm
+## Tính năng chính
 
-Hệ thống hỗ trợ hiển thị và chọn phiên bản sản phẩm:
+1. **Danh mục sản phẩm**: Hiển thị danh mục sản phẩm cho người dùng dễ dàng tìm kiếm.
+2. **Tìm kiếm sản phẩm**: Cho phép người dùng tìm kiếm sản phẩm theo tên.
+3. **Xem chi tiết sản phẩm**: Hiển thị thông tin chi tiết về sản phẩm, bao gồm hình ảnh, giá cả và mô tả.
+4. **Giỏ hàng**: Cho phép người dùng thêm sản phẩm vào giỏ hàng và quản lý số lượng.
+5. **Thanh toán**: Xử lý thanh toán đơn hàng an toàn.
+6. **Theo dõi đơn hàng**: Cho người dùng theo dõi trạng thái đơn hàng.
+7. **Cuộn vô hạn (Infinite Scroll)**: Tự động tải thêm sản phẩm khi người dùng cuộn đến cuối trang để trải nghiệm mượt mà hơn.
 
-### 1. Chọn phiên bản khi mua hàng
+## Hướng dẫn phát triển
 
-- Khi nhấn vào nút "Mua ngay", người dùng có thể chọn phiên bản sản phẩm nếu sản phẩm có nhiều phiên bản
-- Phiên bản được chọn sẽ được lưu vào giỏ hàng
+### Cuộn vô hạn (Infinite Scroll)
 
-### 2. Hiển thị phiên bản trong giỏ hàng
+Ứng dụng đã được tích hợp tính năng cuộn vô hạn (infinite scroll) cho danh sách sản phẩm ở trang chủ. Khi người dùng cuộn đến cuối trang, hệ thống sẽ tự động tải thêm sản phẩm mới.
 
-- Thông tin phiên bản sản phẩm đã chọn được hiển thị trong giỏ hàng
-- Giúp người dùng dễ dàng nhận biết các phiên bản sản phẩm khác nhau đã thêm vào giỏ hàng
+**Các thành phần chính:**
 
-### 3. Các component liên quan
+1. **state/home.state.ts**: Chứa các state và action để quản lý việc tải sản phẩm:
 
-- `BuyNowButton`: Nút mua ngay với khả năng chọn phiên bản
-- `ProductVariantSelector`: Component hiển thị danh sách phiên bản sản phẩm để người dùng lựa chọn
-- `cart-item`: Hiển thị thông tin phiên bản sản phẩm trong giỏ hàng
+   - `homeProductsState`: Danh sách sản phẩm hiện tại
+   - `homeCurrentPageState`: Trang hiện tại
+   - `homeLoadingState`: Trạng thái đang tải
+   - `homeHasMoreState`: Còn sản phẩm để tải hay không
+   - `loadMoreHomeProductsAction`: Action để tải thêm sản phẩm
+   - `initHomeProductsAction`: Action để khởi tạo danh sách sản phẩm ban đầu
+
+2. **Sử dụng IntersectionObserver**: Theo dõi khi element cuối cùng xuất hiện trong viewport để tải thêm sản phẩm.
+
+**Cách điều chỉnh:**
+
+- Thay đổi kích thước trang (số lượng sản phẩm tải mỗi lần): Điều chỉnh giá trị `PAGE_SIZE` trong `src/state/home.state.ts`.
+- Thay đổi bộ lọc sản phẩm: Điều chỉnh tham số `filter` trong hàm `fetchHomeProducts` trong `src/state/home.state.ts`.

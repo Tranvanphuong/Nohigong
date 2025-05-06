@@ -239,6 +239,35 @@ export const services = {
       const response = await externalApi.getOrderWithDetail();
       return response;
     },
+
+    // Phương thức mới để lấy đơn hàng với API mới
+    getOrdersWithDetailNew: async (params?: {
+      page?: number;
+      pageSize?: number;
+      dateFrom?: Date;
+      dateTo?: Date;
+      statuses?: number[];
+    }): Promise<{ orders: OrderImpl[]; totalCount: number }> => {
+      try {
+        const skip = params?.page
+          ? (params.page - 1) * (params?.pageSize || 10)
+          : 0;
+        const take = params?.pageSize || 10;
+
+        const response = await externalApi.getOrdersWithDetailNew({
+          skip,
+          take,
+          dateFrom: params?.dateFrom,
+          dateTo: params?.dateTo,
+          statuses: params?.statuses,
+        });
+
+        return response;
+      } catch (error) {
+        console.error("Error fetching orders with details:", error);
+        return { orders: [], totalCount: 0 };
+      }
+    },
   },
 
   category: {

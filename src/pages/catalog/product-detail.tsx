@@ -11,7 +11,14 @@ import {
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import VariantPicker from "./variant-picker";
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  Suspense,
+} from "react";
 import Collapse from "@/components/collapse";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks";
@@ -24,6 +31,7 @@ import { Icon } from "zmp-ui";
 import BuyNowButton from "@/components/BuyNowButton";
 import Carousel from "@/components/carousel";
 import ProductVariantSelector from "@/components/ProductVariantSelector";
+import ProductDetailSkeleton from "./product-detail-skeleton";
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,10 +40,12 @@ const ProductDetailPage: React.FC = () => {
   const [showVariantSelector, setShowVariantSelector] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({
     size: undefined,
-    color: undefined
+    color: undefined,
   });
   const selectedVariantRef = useRef<Product | null>(null);
-  const [currentAction, setCurrentAction] = useState<'addToCart' | 'buyNow' | null>(null);
+  const [currentAction, setCurrentAction] = useState<
+    "addToCart" | "buyNow" | null
+  >(null);
 
   const [phoneNumber, setPhoneNumber] = useState<string>("");
 
@@ -55,7 +65,7 @@ const ProductDetailPage: React.FC = () => {
   const product = useAtomValue(productDetailState) as Product | null;
 
   if (!product) {
-    return <div>Loading...</div>;
+    return <ProductDetailSkeleton />;
   }
 
   const [selectedColor, setSelectedColor] = useState<Color>();
@@ -71,10 +81,12 @@ const ProductDetailPage: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<Product | null>(null);
 
   // Sử dụng useRef để lưu trữ variant được chọn
-//  selectedVariantRef = useRef<Product | null>(null);
+  //  selectedVariantRef = useRef<Product | null>(null);
 
   // Sử dụng useAddToCart với currentProduct
-  const { addToCart, options, setOptions } = useAddToCart(currentProduct || {} as Product);
+  const { addToCart, options, setOptions } = useAddToCart(
+    currentProduct || ({} as Product)
+  );
 
   // Hàm xử lý mua ngay
   const handleBuyNow = () => {
@@ -83,7 +95,7 @@ const ProductDetailPage: React.FC = () => {
       console.error("Product is null");
       return;
     }
-    setCurrentAction('buyNow');
+    setCurrentAction("buyNow");
     if (product.classifies && product.classifies.length > 0) {
       setShowVariantSelector(true);
     } else {
@@ -97,9 +109,8 @@ const ProductDetailPage: React.FC = () => {
       console.error("Product is null");
       return;
     }
-    setCurrentAction('addToCart');
+    setCurrentAction("addToCart");
     if (product.classifies && product.classifies.length > 0) {
-     
       setShowVariantSelector(true);
     } else {
       setCurrentProduct(product);
@@ -114,20 +125,18 @@ const ProductDetailPage: React.FC = () => {
 
   // Theo dõi currentProduct và thêm vào giỏ hàng
   useEffect(() => {
-    if (currentProduct ){
-      
-      if( currentAction === 'addToCart') {
-      // Chỉ thêm vào giỏ nếu là action "Thêm vào giỏ"
+    if (currentProduct) {
+      if (currentAction === "addToCart") {
+        // Chỉ thêm vào giỏ nếu là action "Thêm vào giỏ"
         addToCart(1);
         toast.success("Đã thêm vào giỏ hàng");
         setCurrentAction(null);
         setCurrentProduct(null);
-      }
-      else if(currentAction === 'buyNow') {
-      addToCart(1);
-      navigate('/cart');
-      setCurrentAction(null);
-      setCurrentProduct(null);
+      } else if (currentAction === "buyNow") {
+        addToCart(1);
+        navigate("/cart");
+        setCurrentAction(null);
+        setCurrentProduct(null);
       }
       // Nếu là action "Mua ngay" thì không thêm vào giỏ ở đây
       // mà sẽ xử lý trong useEffect khác
@@ -182,7 +191,8 @@ const ProductDetailPage: React.FC = () => {
       <div className="flex-1 overflow-y-auto">
         <Carousel
           slides={
-            (displayProduct as any).resources && (displayProduct as any).resources.length > 0
+            (displayProduct as any).resources &&
+            (displayProduct as any).resources.length > 0
               ? (displayProduct as any).resources.map((image: any) => (
                   <img
                     src={getImageUrl(image.file_name || "")}
@@ -319,10 +329,7 @@ const ProductDetailPage: React.FC = () => {
             <span>Thêm vào giỏ</span>
           </button>
           <div className="w-[190px]">
-            <BuyNowButton 
-              product={displayProduct} 
-              onBuyNow={handleBuyNow}
-            />
+            <BuyNowButton product={displayProduct} onBuyNow={handleBuyNow} />
           </div>
         </div>
       </div>

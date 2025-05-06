@@ -186,41 +186,69 @@ const OrdersPage = () => {
   const [orders, setOrders] = useState<OrderImpl[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const pageSize = 10;
+
+  // Lấy trạng thái đơn hàng dựa vào tab đang chọn
+  const getOrderStatusesFromTab = (tab: string): number[] => {
+    switch (tab) {
+      case "Chờ xác nhận":
+        return [10, 20]; // Đơn mới, Đã xác nhận
+      case "Đang giao":
+        return [30, 40]; // Đang xử lý, Đang giao hàng
+      case "Hoàn thành":
+        return [50]; // Hoàn thành
+      case "Đã hủy":
+        return [60, 70]; // Đã hủy, Đã trả hàng
+      default:
+        return [10, 20, 30, 40, 50, 60, 70]; // Tất cả
+    }
+  };
 
   // Tải danh sách đơn hàng
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const result = await services.order.getOrderWithDetail();
-        setOrders(result);
-      } catch (err) {
-        console.error("Lỗi khi tải danh sách đơn hàng:", err);
-        setError("Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchOrders = async (selectedTab = activeTab, selectedPage = page) => {
+    setLoading(true);
+    try {
+      const statuses = getOrderStatusesFromTab(selectedTab);
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - 3); // Lấy đơn hàng 3 tháng gần đây
 
+      const result = await services.order.getOrdersWithDetailNew({
+        page: selectedPage,
+        pageSize: pageSize,
+        dateFrom: startDate,
+        dateTo: new Date(),
+        statuses: statuses,
+      });
+
+      setOrders(result.orders);
+      setTotalCount(result.totalCount);
+    } catch (err) {
+      console.error("Lỗi khi tải danh sách đơn hàng:", err);
+      setError("Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Tải đơn hàng khi component được mount hoặc khi thay đổi tab/trang
+  useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Lọc đơn hàng theo tab đang chọn
-  const getFilteredOrders = () => {
-    if (activeTab === "Tất cả") return orders;
-
-    return orders.filter((order) => {
-      if (activeTab === "Chờ xác nhận")
-        return order.order_status === 10 || order.order_status === 20;
-      if (activeTab === "Đang giao")
-        return order.order_status === 30 || order.order_status === 40;
-      if (activeTab === "Hoàn thành") return order.order_status === 50;
-      if (activeTab === "Đã hủy")
-        return order.order_status === 60 || order.order_status === 70;
-      return false;
-    });
+  // Xử lý khi thay đổi tab
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setPage(1);
+    fetchOrders(tab, 1);
   };
 
-  const filteredOrders = getFilteredOrders();
+  // Xử lý khi chuyển trang
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    fetchOrders(activeTab, newPage);
+  };
 
   const handleOrderClick = (orderId) => {
     navigate(`/orders/${orderId}`);
@@ -230,7 +258,7 @@ const OrdersPage = () => {
   if (loading) {
     return (
       <Page className="bg-gray-50">
-        <OrderTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <OrderTabs activeTab={activeTab} onTabChange={handleTabChange} />
         <div className="flex items-center justify-center h-screen">
           <Spinner />
         </div>
@@ -242,15 +270,12 @@ const OrdersPage = () => {
   if (error) {
     return (
       <Page className="bg-gray-50">
-        <OrderTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <OrderTabs activeTab={activeTab} onTabChange={handleTabChange} />
         <div className="flex flex-col items-center justify-center h-screen p-4">
           <div className="text-center mb-4 text-red-500">
             <Icon icon="zi-close-circle" size={48} />
           </div>
           <div className="text-lg font-medium text-center">{error}</div>
-          <Button className="mt-4" onClick={() => window.location.reload()}>
-            Thử lại
-          </Button>
         </div>
       </Page>
     );
@@ -258,11 +283,11 @@ const OrdersPage = () => {
 
   return (
     <Page className="bg-gray-50">
-      <OrderTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <OrderTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="p-3">
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
+        {orders.length > 0 ? (
+          orders.map((order) => (
             <OrderItem
               key={order.order_id}
               order={order}
@@ -270,9 +295,56 @@ const OrdersPage = () => {
             />
           ))
         ) : (
-          <div className="text-center py-10">
-            <div className="text-5xl mb-4">📦</div>
-            <div className="text-gray-500">Không có đơn hàng nào</div>
+          <div className="flex flex-col items-center justify-center py-10 bg-white rounded-lg shadow-sm text-center">
+            <Icon icon="zi-search" className="text-gray-300 mb-3" size={48} />
+            <div className="font-medium text-lg text-gray-500">
+              Không tìm thấy đơn hàng nào
+            </div>
+            <div className="text-gray-400 mt-1">
+              Thử tìm kiếm với thời gian khác hoặc kiểm tra lại các điều kiện
+              lọc
+            </div>
+            <Button
+              className="mt-4 bg-primary text-white"
+              onClick={() => fetchOrders(activeTab, 1)}
+            >
+              Làm mới
+            </Button>
+          </div>
+        )}
+
+        {/* Phân trang */}
+        {totalCount > pageSize && (
+          <div className="flex justify-center items-center mt-4 space-x-2">
+            <Button
+              size="small"
+              className={`border ${
+                page > 1
+                  ? "border-gray-300 text-gray-800"
+                  : "border-gray-200 text-gray-400"
+              }`}
+              disabled={page <= 1}
+              onClick={() => handlePageChange(page - 1)}
+            >
+              <Icon icon="zi-chevron-left" />
+            </Button>
+
+            <div className="text-gray-600 text-sm">
+              Trang {page} / {Math.ceil(totalCount / pageSize)}
+            </div>
+
+            <Button
+              size="small"
+              className={`border ${
+                page < Math.ceil(totalCount / pageSize)
+                  ? "border-gray-300 text-gray-800"
+                  : "border-gray-200 text-gray-400"
+              }`}
+              disabled={page >= Math.ceil(totalCount / pageSize)}
+              onClick={() => handlePageChange(page + 1)}
+            >
+              <Icon icon="zi-chevron-right" />
+            </Button>
           </div>
         )}
       </div>
